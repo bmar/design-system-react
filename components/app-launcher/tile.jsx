@@ -98,120 +98,111 @@ const defaultProps = {
 /**
  * App Launcher Tiles provide information and links to a user's apps
  */
-class AppLauncherTile extends React.Component {
-	constructor(props) {
-		super(props);
+const AppLauncherTile = (props) => {
+	// `checkProps` issues warnings to developers about properties (similar to React's built in development tools)
+	checkProps(APP_LAUNCHER_TILE, props, componentDoc);
 
-		// `checkProps` issues warnings to developers about properties (similar to React's built in development tools)
-		checkProps(APP_LAUNCHER_TILE, props, componentDoc);
-	}
-
-	handleClick = (event) => {
-		if (this.props.onClick) {
+	const handleClick = (event) => {
+		if (props.onClick) {
 			event.preventDefault();
-			this.props.onClick(event, { href: this.props.href });
+			props.onClick(event, { href: props.href });
 		}
 	};
 
-	render() {
-		const dragButtonAriaProps = { 'aria-pressed': false };
-		const iconStyles = {};
+	const dragButtonAriaProps = { 'aria-pressed': false };
+	const iconStyles = {};
 
-		if (this.props.iconBackgroundColor) {
-			iconStyles.backgroundColor = this.props.iconBackgroundColor;
-		}
+	if (props.iconBackgroundColor) {
+		iconStyles.backgroundColor = props.iconBackgroundColor;
+	}
 
-		return (
-			<div
-				className={classNames(
-					'slds-app-launcher__tile slds-text-link_reset slds-is-draggable', // NOTE: while the draggable class is here for stylistic purposes, the draggable attribute is not present as draggability has not been implemented yet
-					this.props.className
+	return (
+		<div
+			className={classNames(
+				'slds-app-launcher__tile slds-text-link_reset slds-is-draggable', // NOTE: while the draggable class is here for stylistic purposes, the draggable attribute is not present as draggability has not been implemented yet
+				props.className
+			)}
+			onClick={handleClick}
+			role="button"
+			tabIndex="0"
+		>
+			<div className="slds-app-launcher__tile-figure">
+				{props.iconNode || (
+					<span className="slds-avatar slds-avatar_large">
+						<abbr
+							className="slds-avatar__initials slds-icon-custom-27"
+							style={iconStyles}
+							title={props.title}
+						>
+							{props.iconText}
+						</abbr>
+					</span>
 				)}
-				onClick={this.handleClick}
-				role="button"
-				tabIndex="0"
-			>
-				<div className="slds-app-launcher__tile-figure">
-					{this.props.iconNode || (
-						<span className="slds-avatar slds-avatar_large">
-							<abbr
-								className="slds-avatar__initials slds-icon-custom-27"
-								style={iconStyles}
-								title={this.props.title}
-							>
-								{this.props.iconText}
-							</abbr>
-						</span>
-					)}
-					<div className="slds-m-top_xxx-small">
-						<Button
-							assistiveText={{
-								icon: this.props.assistiveText.dragIconText,
-							}}
-							iconCategory="utility"
-							iconName="rows"
-							title={this.props.assistiveText.dragIconText}
-							variant="icon"
-							{...dragButtonAriaProps}
-						/>
-					</div>
-				</div>
-				<div className="slds-app-launcher__tile-body">
-					<a
-						href={this.props.href} // eslint-disable-line no-script-url
-					>
-						<Highlighter search={this.props.search}>
-							{this.props.title}
-						</Highlighter>
-					</a>
-					<Truncate
-						line={2}
-						prefix={
-							this.props.descriptionHeading &&
-							this.props.descriptionHeading.toUpperCase()
-						}
-						suffix={this.props.moreLabel}
-						text={this.props.description}
-						textTruncateChild={
-							<Tooltip
-								align="bottom"
-								content={
-									<Highlighter search={this.props.search}>
-										{this.props.description}
-									</Highlighter>
-								}
-								isOpen={this.props.isOpenTooltip}
-							>
-								<Button
-									className="slds-button_reset slds-text-link"
-									variant="base"
-								>
-									{this.props.moreLabel}
-								</Button>
-							</Tooltip>
-						}
-						wrapper={(text, textTruncateChild) => (
-							<React.Fragment>
-								{this.props.descriptionHeading && (
-									// inline style override
-									<div
-										className="slds-text-heading_label"
-										style={{ letterSpacing: '0.025rem' }}
-									>
-										{this.props.descriptionHeading}{' '}
-									</div>
-								)}
-								<Highlighter search={this.props.search}>{text}</Highlighter>
-								{textTruncateChild && ' '}
-								{textTruncateChild}
-							</React.Fragment>
-						)}
+				<div className="slds-m-top_xxx-small">
+					<Button
+						assistiveText={{
+							icon: props.assistiveText.dragIconText,
+						}}
+						iconCategory="utility"
+						iconName="rows"
+						title={props.assistiveText.dragIconText}
+						variant="icon"
+						{...dragButtonAriaProps}
 					/>
 				</div>
 			</div>
-		);
-	}
-}
+			<div className="slds-app-launcher__tile-body">
+				<a
+					href={props.href} // eslint-disable-line no-script-url
+				>
+					<Highlighter search={props.search}>{props.title}</Highlighter>
+				</a>
+				<Truncate
+					line={2}
+					prefix={
+						props.descriptionHeading && props.descriptionHeading.toUpperCase()
+					}
+					suffix={props.moreLabel}
+					text={props.description}
+					textTruncateChild={
+						<Tooltip
+							align="bottom"
+							content={
+								<Highlighter search={props.search}>
+									{props.description}
+								</Highlighter>
+							}
+							isOpen={props.isOpenTooltip}
+						>
+							<Button
+								className="slds-button_reset slds-text-link"
+								variant="base"
+							>
+								{props.moreLabel}
+							</Button>
+						</Tooltip>
+					}
+					wrapper={(text, textTruncateChild) => (
+						<React.Fragment>
+							{props.descriptionHeading && (
+								// inline style override
+								<div
+									className="slds-text-heading_label"
+									style={{ letterSpacing: '0.025rem' }}
+								>
+									{props.descriptionHeading}{' '}
+								</div>
+							)}
+							<Highlighter search={props.search}>{text}</Highlighter>
+							{textTruncateChild && ' '}
+							{textTruncateChild}
+						</React.Fragment>
+					)}
+				/>
+			</div>
+		</div>
+	);
+};
 
 AppLauncherTile.displayName = APP_LAUNCHER_TILE;
 AppLauncherTile.defaultProps = defaultProps;
