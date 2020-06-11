@@ -3,10 +3,8 @@ import React from 'react';
 import IconSettings from '~/components/icon-settings';
 import Button from '~/components/button'; // `~` is replaced with design-system-react at runtime
 
-class Example extends React.Component {
-	static displayName = 'ButtonExample';
+const Example = () => {
 
-	render() {
 		return (
 			<IconSettings iconPath="/assets/icons">
 				<div className="slds-x-small-buttons_horizontal">
@@ -39,7 +37,8 @@ class Example extends React.Component {
 				</div>
 			</IconSettings>
 		);
-	}
 }
+
+Example.displayName = 'ButtonExample';
 
 export default Example; // export is replaced with `ReactDOM.render(<Example />, mountNode);` at runtime
