@@ -35,7 +35,6 @@ const defaultProps = {
  * Although not listed in the prop table, all `aria-*` and `form*` props will be added to the `button` element if passed in.
  */
 const Button = (props) => {
-
 	checkProps(BUTTON, props, componentDoc);
 
 	const getClassName = () => {
@@ -90,16 +89,13 @@ const Button = (props) => {
 
 	const renderIcon = (name) => {
 		const iconSize =
-			!props.iconSize || props.iconVariant
-				? null
-				: props.iconSize;
+			!props.iconSize || props.iconVariant ? null : props.iconSize;
 		return (
 			<ButtonIcon
 				category={props.iconCategory || 'utility'} // BREAKING CHANGE we will introduce in 1.0. For the moment, set default prop here if none specified.
 				className={classNames(
 					{
-						'slds-global-header__icon':
-							props.iconVariant === 'global-header',
+						'slds-global-header__icon': props.iconVariant === 'global-header',
 					},
 					props.iconClassName
 				)}
@@ -121,7 +117,7 @@ const Button = (props) => {
 				: {
 						...defaultProps.assistiveText,
 						...props.assistiveText,
-					}.icon;
+				  }.icon;
 
 		return iconOnly && assistiveTextIcon ? (
 			<span className="slds-assistive-text">{assistiveTextIcon}</span>
@@ -164,9 +160,7 @@ const Button = (props) => {
 			>
 				{props.iconPosition === 'right' ? renderLabel() : null}
 
-				{props.iconName || props.iconPath
-					? renderIcon(props.iconName)
-					: null}
+				{props.iconName || props.iconPath ? renderIcon(props.iconName) : null}
 				{props.iconVariant === 'more' ? (
 					<ButtonIcon
 						category="utility"
@@ -192,7 +186,7 @@ const Button = (props) => {
 	);
 
 	return props.tooltip ? renderTooltip() : renderButton();
-}
+};
 
 Button.displayName = BUTTON;
 
