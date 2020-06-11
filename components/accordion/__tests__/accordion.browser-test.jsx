@@ -4,7 +4,7 @@ import chaiEnzyme from 'chai-enzyme';
 import { mount } from 'enzyme';
 
 /* Enzyme Helpers that can mount and unmount React component instances to
- * the DOM and set `this.wrapper` and `this.dom` within Mocha's `this`
+ * the DOM and set `wrapper` and `dom` within Mocha's `this`
  * context [full source here](tests/enzyme-helpers.js). `this` can
  * only be referenced if inside `function () {}`.
  */
@@ -32,32 +32,27 @@ const propTypes = {};
 
 const defaultProps = {};
 
-class AccordionExample extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			expandedPanels: {},
-			items: [
-				{
-					id: '1',
-					summary: 'Accordion Summary',
-					details: 'Accordion details - A',
-				},
-				{
-					id: '2',
-					summary: 'Accordion Summary',
-					details: 'Accordion details - B',
-				},
-				{
-					id: '3',
-					summary: 'Accordion Summary',
-					details: 'Accordion details - C',
-				},
-			],
-		};
-	}
+const AccordionExample = (props) => {
+	const [expandedPanels, setExpandedPanels] = useState({});
+	const [items,setItems] = useState([
+		{
+			id: '1',
+			summary: 'Accordion Summary',
+			details: 'Accordion details - A',
+		},
+		{
+			id: '2',
+			summary: 'Accordion Summary',
+			details: 'Accordion details - B',
+		},
+		{
+			id: '3',
+			summary: 'Accordion Summary',
+			details: 'Accordion details - C',
+		}
+	])
 
-	menuDropdown(selectedItem) {
+	const menuDropdown = (selectedItem) => {
 		return (
 			<Dropdown
 				align="right"
@@ -70,9 +65,9 @@ class AccordionExample extends React.Component {
 				iconVariant="border-filled"
 				onSelect={(option) => {
 					if (option.label === 'delete') {
-						this.setState((state) => ({
+						setState((state) => ({
 							...state,
-							items: state.items.filter((item) => item.id !== selectedItem.id),
+							items: items.filter((item) => item.id !== selectedItem.id),
 						}));
 					} else if (console) {
 						console.log('onSelect', event, option);
@@ -97,84 +92,65 @@ class AccordionExample extends React.Component {
 		);
 	}
 
-	togglePanel(id) {
-		this.setState((state) => ({
-			...state,
-			expandedPanels: {
-				...state.expandedPanels,
-				[id]: !state.expandedPanels[id],
-			},
-		}));
+	const togglePanel = (id) => {
+		setExpandedPanels({
+			[id]: !expandedPanels[id]
+		})
 	}
 
-	render() {
-		return (
-			<IconSettings iconPath="/assets/icons">
-				<Accordion id="base-example-accordion">
-					{this.state.items.map((item) => (
-						<Panel
-							expanded={!!this.state.expandedPanels[item.id]}
-							id={item.id}
-							panelContentActions={this.menuDropdown(item)}
-							key={item.id}
-							onTogglePanel={() => this.togglePanel(item.id)}
-							summary={item.summary}
-						>
-							{item.details}
-						</Panel>
-					))}
-				</Accordion>
-			</IconSettings>
-		);
-	}
+	return (
+		<IconSettings iconPath="/assets/icons">
+			<Accordion id="base-example-accordion">
+				{items.map((item) => (
+					<Panel
+						expanded={!!expandedPanels[item.id]}
+						id={item.id}
+						panelContentActions={menuDropdown(item)}
+						key={item.id}
+						onTogglePanel={() => togglePanel(item.id)}
+						summary={item.summary}
+					>
+						{item.details}
+					</Panel>
+				))}
+			</Accordion>
+		</IconSettings>
+	);
 }
 
 AccordionExample.displayName = 'AccordionExampleComponent';
 AccordionExample.propTypes = propTypes;
 AccordionExample.defaultProps = defaultProps;
 
-class AccordionWithOnePanelExample extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			expandedPanels: {},
-			item: {
-				id: '1',
-				summary: 'Accordion Summary',
-				details: 'Accordion Details',
-			},
-		};
+const AccordionWithOnePanelExample = (props) => {
+	const [expandedPanels, setExpandedPanels] = useState({});
+	const [item,setItem] = useState({
+		id: '1',
+		summary: 'Accordion Summary',
+		details: 'Accordion Details',
+	})
+
+	const togglePanel = (id) => {
+		setExpandedPanels({
+			[id]: !expandedPanels[id]
+		})
 	}
 
-	togglePanel(id) {
-		this.setState((state) => ({
-			...state,
-			expandedPanels: {
-				...state.expandedPanels,
-				[id]: !state.expandedPanels[id],
-			},
-		}));
-	}
-
-	render() {
-		const { item } = this.state;
-
-		return (
-			<IconSettings iconPath="/assets/icons">
-				<Accordion id="base-example-accordion">
-					<Panel
-						expanded={!!this.state.expandedPanels[item.id]}
-						id={item.id}
-						key={item.id}
-						onTogglePanel={() => this.togglePanel(item.id)}
-						summary={item.summary}
-					>
-						{item.details}
-					</Panel>
-				</Accordion>
-			</IconSettings>
-		);
-	}
+	return (
+		<IconSettings iconPath="/assets/icons">
+			<Accordion id="base-example-accordion">
+				<Panel
+					expanded={!!expandedPanels[item.id]}
+					id={item.id}
+					key={item.id}
+					onTogglePanel={() => togglePanel(item.id)}
+					summary={item.summary}
+				>
+					{item.details}
+				</Panel>
+			</Accordion>
+		</IconSettings>
+	);
 }
 
 AccordionWithOnePanelExample.displayName =

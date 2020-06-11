@@ -5,7 +5,7 @@
 // pattern](https://www.lightningdesignsystem.com/components/accordion/) in
 // React. Based on SLDS v2.4.3
 
-import React, { Component } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import shortid from 'shortid';
@@ -44,80 +44,79 @@ const propTypes = {
  * An accordion allows a user to toggle the display of sections of content.
  * The accordion component wraps accordion panels that can be selected and expanded. It accepts children to define the content displayed within.
  */
-class Accordion extends Component {
-	constructor(props) {
-		super(props);
-		this.state = { currButtonIndex: 0 };
-		this.summaryButtons = [];
-		this.generatedId = shortid.generate();
-	}
+const Accordion = props => {
+	const [buttonIdx, setButtonIdx] = useState({ currButtonIndex: 0 });
 
-	componentDidUpdate(prevProps, prevState) {
+	const prevButtonIdx = useRef();
+
+	useEffect(() => {
+		prevButtonIdx.current = buttonIdx;
 		if (
-			this.state.currButtonIndex !== null &&
-			this.state.currButtonIndex !== prevState.currButtonIndex
+			buttonIdx !== null &&
+			buttonIdx !== prevButtonIdx.current
 		) {
-			this.summaryButtons[this.state.currButtonIndex].focus();
+			summaryButtons[buttonIdx.currButtonIndex].focus();
 		}
+	},[buttonIdx]);
+	
+	const summaryButtons = [];
+	const generatedId = shortid.generate();
+
+	const onClickSummary = () => {
+		setButtonIdx({ currButtonIndex: null });
 	}
 
-	onClickSummary() {
-		this.setState({ currButtonIndex: null });
-	}
-
-	onKeyDownSummary(e) {
-		let buttonIndex = this.state.currButtonIndex;
+	const onKeyDownSummary = (e) => {
+		let buttonIndex = buttonIdx;
 		if (buttonIndex === null) {
-			buttonIndex = this.summaryButtons.findIndex(
+			buttonIndex = summaryButtons.findIndex(
 				(el) => el.id === e.target.id
 			);
 		}
 
 		if (e.key === 'ArrowDown') {
 			e.preventDefault();
-			if (buttonIndex < this.props.children.length - 1) {
-				this.setState({
-					currButtonIndex: buttonIndex + 1,
+			if (buttonIndex < props.children.length - 1) {
+				setButtonIdx({
+					currButtonIndex: buttonIndex + 1
 				});
 			} else {
-				this.setState({ currButtonIndex: 0 });
+				setButtonIdx({ currButtonIndex: 0 });
 			}
 		} else if (e.key === 'ArrowUp') {
 			e.preventDefault();
 			if (buttonIndex > 0) {
-				this.setState({
-					currButtonIndex: buttonIndex - 1,
+				setButtonIdx({
+					currButtonIndex: buttonIndex - 1
 				});
 			} else {
-				this.setState({ currButtonIndex: this.props.children.length - 1 });
+				setButtonIdx({ currButtonIndex: props.children.length - 1 });
 			}
 		}
 	}
 
-	addSummaryButton(button) {
-		const btnInArr = this.summaryButtons.find((el) => button === el);
+	const addSummaryButton = button => {
+		const btnInArr = summaryButtons.find((el) => button === el);
 		if (button !== null && btnInArr === undefined) {
 			// eslint-disable-next-line fp/no-mutating-methods
-			this.summaryButtons.push(button);
+			summaryButtons.push(button);
 		}
 	}
 
-	render() {
-		return (
-			<ul
-				name={this.props.id || this.generatedId}
-				className={classNames('slds-accordion', this.props.className)}
-			>
-				{React.Children.map(this.props.children, (child) =>
-					React.cloneElement(child, {
-						refs: { summaryButton: this.addSummaryButton.bind(this) },
-						onClickSummary: this.onClickSummary.bind(this),
-						onKeyDownSummary: this.onKeyDownSummary.bind(this),
-					})
-				)}
-			</ul>
-		);
-	}
+	return (
+		<ul
+			name={props.id || generatedId}
+			className={classNames('slds-accordion', props.className)}
+		>
+			{React.Children.map(props.children, (child) =>
+				React.cloneElement(child, {
+					refs: { summaryButton: addSummaryButton.bind(this) },
+					onClickSummary: onClickSummary.bind(this),
+					onKeyDownSummary: onKeyDownSummary.bind(this),
+				})
+			)}
+		</ul>
+	);
 }
 
 Accordion.displayName = ACCORDION;
