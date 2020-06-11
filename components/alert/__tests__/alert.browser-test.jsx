@@ -1,7 +1,7 @@
 /* eslint-disable react/no-render-return-value */
 /* eslint-disable react/no-find-dom-node */
 
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import chai, { expect } from 'chai';
 import chaiEnzyme from 'chai-enzyme';
 import {
@@ -16,41 +16,33 @@ import IconSettings from '../../icon-settings';
 
 chai.use(chaiEnzyme());
 
-class DemoComponent extends Component {
-	constructor(props) {
-		super(props);
+const DemoComponent = (props) => {
+	const [isOpen, setIsOpen] = useState(true);
 
-		this.state = {
-			isOpen: true,
-		};
-	}
-
-	render() {
-		return (
-			<IconSettings iconPath="/assets/icons">
-				<div>
-					<AlertContainer>
-						{this.state.isOpen ? (
-							<Alert
-								style={this.props.style}
-								dismissible
-								icon={<Icon category="utility" name="user" />}
-								labels={{
-									heading: 'Logged in as John Smith (johnsmith@acme.com).',
-									headingLink: 'Log out',
-								}}
-								onClickHeadingLink={this.props.onClickHeadingLink}
-								onRequestClose={() => {
-									this.setState({ isOpen: false });
-								}}
-							/>
-						) : null}
-					</AlertContainer>
-				</div>
-			</IconSettings>
-		);
-	}
-}
+	return (
+		<IconSettings iconPath="/assets/icons">
+			<div>
+				<AlertContainer>
+					{isOpen ? (
+						<Alert
+							style={props.style}
+							dismissible
+							icon={<Icon category="utility" name="user" />}
+							labels={{
+								heading: 'Logged in as John Smith (johnsmith@acme.com).',
+								headingLink: 'Log out',
+							}}
+							onClickHeadingLink={props.onClickHeadingLink}
+							onRequestClose={() => {
+								setIsOpen(false);
+							}}
+						/>
+					) : null}
+				</AlertContainer>
+			</div>
+		</IconSettings>
+	);
+};
 
 DemoComponent.displayName = 'AlertExample';
 
@@ -67,14 +59,14 @@ describe('SLDSAlert: ', function describeFunction() {
 		/* Please notice the of `function () {}` and not () => {}.
 		 * It allows access to the Mocha test context via `this`.
 		 */
-		it('calls onRequestClose handler', function() {
+		it('calls onRequestClose handler', function () {
 			const button = this.wrapper.find('button.slds-notify__close');
 			// If applicable, use second parameter to pass the data object
 			expect(this.wrapper).to.have.state('isOpen', true);
 			button.simulate('click', {});
 			expect(this.wrapper).to.have.state('isOpen', false);
 		});
-		it('calls onClickHeadingLink handler', function() {
+		it('calls onClickHeadingLink handler', function () {
 			const link = this.wrapper.find('a');
 			// If applicable, use second parameter to pass the data object
 			link.simulate('click', {});
@@ -91,7 +83,7 @@ describe('SLDSAlert: ', function describeFunction() {
 
 		afterEach(unmountComponent);
 
-		it('render custom styles', function() {
+		it('render custom styles', function () {
 			expect(
 				this.wrapper.find('.slds-notify').prop('style').backgroundColor
 			).to.equal('rgb(18, 49, 35)');

@@ -5,7 +5,7 @@
 
 // Implements the [Alert design pattern](https://lightningdesignsystem.com/components/alert/) in React.
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import assign from 'lodash.assign';
 import classNames from '../../utilities/class-names';
@@ -92,126 +92,110 @@ const defaultProps = {
  * Alert banners communicate a state that affects the entire system, not just a feature or page. It persists over a session and appears without the user initiating the action. View [banner guidelines](https://www.lightningdesignsystem.com/guidelines/messaging/components/banners/).
  */
 
-class Alert extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			isInitialRender: true,
-		};
-
-		// `checkProps` issues warnings to developers about properties (similar to React's built in development tools)
-		checkProps(ALERT, props, componentDoc);
-	}
-
-	componentWillUnmount() {
-		DOMElementFocus.returnFocusToStoredElement();
-	}
-
-	saveButtonRef = (component) => {
-		this.closeButton = component;
-		if (this.state.isInitialRender) {
-			DOMElementFocus.storeActiveElement();
-			if (this.closeButton) {
-				this.closeButton.focus();
-			}
-			this.setState({ isInitialRender: false });
+const Alert = (props) => {
+	useEffect(() => {
+		DOMElementFocus.storeActiveElement();
+		if (closeButton) {
+			closeButton.focus();
 		}
+		return () => {
+			DOMElementFocus.returnFocusToStoredElement();
+		};
+	}, []);
+
+	// `checkProps` issues warnings to developers about properties (similar to React's built in development tools)
+	checkProps(ALERT, props, componentDoc);
+
+	let closeButton;
+	const saveButtonRef = (component) => {
+		closeButton = component;
 	};
 
-	render() {
-		// Merge objects of strings with their default object
-		const assistiveText = assign(
-			{},
-			defaultProps.assistiveText,
-			this.props.assistiveText
-		);
-		const labels = assign({}, defaultProps.labels, this.props.labels);
+	// Merge objects of strings with their default object
+	const assistiveText = assign(
+		{},
+		defaultProps.assistiveText,
+		props.assistiveText
+	);
+	const labels = assign({}, defaultProps.labels, props.labels);
 
-		// BACKWARD COMPATIBILITY WITH NOTIFICATION
-		const heading = labels.heading || this.props.content; // eslint-disable-line react/prop-types
-		const onRequestClose = this.props.onRequestClose || this.props.onDismiss; // eslint-disable-line react/prop-types
+	// BACKWARD COMPATIBILITY WITH NOTIFICATION
+	const heading = labels.heading || props.content; // eslint-disable-line react/prop-types
+	const onRequestClose = props.onRequestClose || props.onDismiss; // eslint-disable-line react/prop-types
 
-		const assistiveTextVariant = {
-			info: 'info',
-			warning: 'warning',
-			error: 'error',
-			offline: 'offline',
-		};
+	const assistiveTextVariant = {
+		info: 'info',
+		warning: 'warning',
+		error: 'error',
+		offline: 'offline',
+	};
 
-		const defaultIcons = {
-			info: <Icon category="utility" name="info" />,
-			offline: <Icon category="utility" name="offline" />,
-			warning: <Icon category="utility" name="warning" />,
-			error: <Icon category="utility" name="error" />,
-		};
+	const defaultIcons = {
+		info: <Icon category="utility" name="info" />,
+		offline: <Icon category="utility" name="offline" />,
+		warning: <Icon category="utility" name="warning" />,
+		error: <Icon category="utility" name="error" />,
+	};
 
-		let icon = this.props.icon
-			? this.props.icon
-			: defaultIcons[this.props.variant];
+	let icon = props.icon ? props.icon : defaultIcons[props.variant];
 
-		// BACKWARD COMPATIBILITY WITH NOTIFICATION
-		if (this.props.iconName && this.props.iconCategory) {
-			// eslint-disable-line react/prop-types
-			icon = (
-				<Icon category={this.props.iconCategory} name={this.props.iconName} />
-			);
-		}
-
-		const clonedIcon = React.cloneElement(icon, {
-			containerClassName: 'slds-m-right_x-small',
-			inverse: true,
-			size: 'x-small',
-		});
-
-		/* eslint-disable no-script-url */
-		return (
-			<div
-				className={classNames(
-					'slds-notify slds-notify_alert slds-theme_alert-texture',
-					{
-						'slds-theme_info': this.props.variant === 'info',
-						'slds-theme_warning': this.props.variant === 'warning',
-						'slds-theme_error': this.props.variant === 'error',
-						'slds-theme_offline': this.props.variant === 'offline',
-					},
-					this.props.className
-				)}
-				role="alert"
-				style={this.props.style}
-			>
-				<span className="slds-assistive-text">
-					{assistiveTextVariant[this.props.variant]}
-				</span>
-				{clonedIcon}
-				<h2>
-					{heading}{' '}
-					{labels.headingLink ? (
-						<a
-							onClick={this.props.onClickHeadingLink}
-							href="javascript:void(0);"
-						>
-							{labels.headingLink}
-						</a>
-					) : null}
-				</h2>
-				{this.props.dismissible ? (
-					<Button
-						assistiveText={{ icon: assistiveText.closeButton }}
-						buttonRef={this.saveButtonRef}
-						className="slds-notify__close"
-						iconCategory="utility"
-						iconName="close"
-						iconSize="medium"
-						inverse
-						onClick={onRequestClose}
-						title={assistiveText.closeButton}
-						variant="icon"
-					/>
-				) : null}
-			</div>
-		);
+	// BACKWARD COMPATIBILITY WITH NOTIFICATION
+	if (props.iconName && props.iconCategory) {
+		// eslint-disable-line react/prop-types
+		icon = <Icon category={props.iconCategory} name={props.iconName} />;
 	}
-}
+
+	const clonedIcon = React.cloneElement(icon, {
+		containerClassName: 'slds-m-right_x-small',
+		inverse: true,
+		size: 'x-small',
+	});
+
+	/* eslint-disable no-script-url */
+	return (
+		<div
+			className={classNames(
+				'slds-notify slds-notify_alert slds-theme_alert-texture',
+				{
+					'slds-theme_info': props.variant === 'info',
+					'slds-theme_warning': props.variant === 'warning',
+					'slds-theme_error': props.variant === 'error',
+					'slds-theme_offline': props.variant === 'offline',
+				},
+				props.className
+			)}
+			role="alert"
+			style={props.style}
+		>
+			<span className="slds-assistive-text">
+				{assistiveTextVariant[props.variant]}
+			</span>
+			{clonedIcon}
+			<h2>
+				{heading}{' '}
+				{labels.headingLink ? (
+					<a onClick={props.onClickHeadingLink} href="javascript:void(0);">
+						{labels.headingLink}
+					</a>
+				) : null}
+			</h2>
+			{props.dismissible ? (
+				<Button
+					assistiveText={{ icon: assistiveText.closeButton }}
+					buttonRef={saveButtonRef}
+					className="slds-notify__close"
+					iconCategory="utility"
+					iconName="close"
+					iconSize="medium"
+					inverse
+					onClick={onRequestClose}
+					title={assistiveText.closeButton}
+					variant="icon"
+				/>
+			) : null}
+		</div>
+	);
+};
 
 Alert.defaultProps = defaultProps;
 Alert.displayName = ALERT;
