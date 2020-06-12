@@ -7,7 +7,7 @@
 // ## Dependencies
 
 // ### React
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 // ### classNames
@@ -126,192 +126,187 @@ const defaultProps = {
  * The ButtonStateful component is a variant of the Lightning Design System Button component. It is used for buttons that have a state of unselected or selected.
  * For icon buttons, use <code>variant='icon'</code>. For buttons with labels or buttons with labels and icons, pass data to the state props (ie. <code>stateOne={{iconName: 'add', label: 'Join'}}</code>).
  */
-class ButtonStateful extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = { active: false };
+const ButtonStateful = (props) => {
+	const [activeState, setActiveState] = useState(false);
 
-		checkProps(BUTTON_STATEFUL, props, componentDoc);
-	}
+	checkProps(BUTTON_STATEFUL, props, componentDoc);
 
-	getClassName(active) {
-		return classNames(this.props.className, 'slds-button', {
+	const getClassName = (active) => {
+		return classNames(props.className, 'slds-button', {
 			'slds-button_neutral':
-				this.props.variant !== 'icon' && this.props.variant !== 'icon-filled',
-			'slds-button_inverse': this.props.variant === 'inverse',
+				props.variant !== 'icon' && props.variant !== 'icon-filled',
+			'slds-button_inverse': props.variant === 'inverse',
 			'slds-not-selected': !active,
 			'slds-is-selected': active,
-			'slds-max-small-button_stretch': this.props.responsive,
-			'slds-button_icon-border': this.props.variant === 'icon',
-			'slds-button_icon-border-filled': this.props.variant === 'icon-filled',
+			'slds-max-small-button_stretch': props.responsive,
+			'slds-button_icon-border': props.variant === 'icon',
+			'slds-button_icon-border-filled': props.variant === 'icon-filled',
 		});
-	}
+	};
 
-	handleBlur = (e) => {
-		if (this.props.onBlur) this.props.onBlur(e);
+	const handleBlur = (e) => {
+		if (props.onBlur) props.onBlur(e);
 		e.currentTarget.blur();
 	};
 
-	handleClick = (e) => {
-		if (isFunction(this.props.onClick)) this.props.onClick(e);
-		if (typeof this.props.active !== 'boolean') {
-			this.setState((prevState) => ({ active: !prevState.active }));
+	const handleClick = (e) => {
+		if (isFunction(props.onClick)) props.onClick(e);
+		if (typeof props.active !== 'boolean') {
+			setActiveState(!activeState);
 		}
 	};
 
-	render() {
-		const {
-			active,
-			disabled,
-			icon,
-			iconName,
-			iconSize,
-			id,
-			onFocus,
-			onKeyDown,
-			onKeyPress,
-			onKeyUp,
-			onMouseDown,
-			onMouseEnter,
-			// onMouseLeave,  // This prop isn't used anywhere! But removing it would be a breaking change
-			stateOne,
-			stateTwo,
-			stateThree,
-			tabIndex,
-			variant,
-		} = this.props;
+	const {
+		active,
+		disabled,
+		icon,
+		iconName,
+		iconSize,
+		id,
+		onFocus,
+		onKeyDown,
+		onKeyPress,
+		onKeyUp,
+		onMouseDown,
+		onMouseEnter,
+		// onMouseLeave,  // This prop isn't used anywhere! But removing it would be a breaking change
+		stateOne,
+		stateTwo,
+		stateThree,
+		tabIndex,
+		variant,
+	} = props;
 
-		const defaultIconProps = {
-			disabled,
-			size: 'small',
-			className: 'slds-button__icon_stateful',
-		};
-		const iconAssistiveText =
-			typeof this.props.assistiveText === 'string'
-				? this.props.assistiveText
-				: {
-						...defaultProps.assistiveText,
-						...this.props.assistiveText,
-					}.icon;
+	const defaultIconProps = {
+		disabled,
+		size: 'small',
+		className: 'slds-button__icon_stateful',
+	};
+	const iconAssistiveText =
+		typeof props.assistiveText === 'string'
+			? props.assistiveText
+			: {
+					...defaultProps.assistiveText,
+					...props.assistiveText,
+			  }.icon;
 
-		const isActive = typeof active === 'boolean' ? active : this.state.active;
+	const isActive = typeof active === 'boolean' ? active : activeState;
 
-		if (variant === 'icon' || variant === 'icon-filled') {
-			return (
-				<button
-					aria-live="polite"
-					className={this.getClassName(isActive)}
-					disabled={disabled}
-					id={id}
-					onBlur={this.handleBlur}
-					onClick={this.handleClick}
-					onFocus={onFocus}
-					onKeyDown={onKeyDown}
-					onKeyPress={onKeyPress}
-					onKeyUp={onKeyUp}
-					onMouseDown={onMouseDown}
-					onMouseEnter={onMouseEnter}
-					onMouseLeave={this.handleBlur}
-					tabIndex={tabIndex}
-					type="button"
-				>
-					{icon ? (
-						React.cloneElement(icon, {
-							...defaultIconProps,
-							...icon.props,
-						})
-					) : (
-						<ButtonIcon
-							disabled={disabled}
-							name={iconName}
-							size={iconSize}
-							className="slds-button__icon_stateful"
-						/>
-					)}
-					{iconAssistiveText ? (
-						<span className="slds-assistive-text">{iconAssistiveText}</span>
-					) : null}
-				</button>
-			);
-		}
-
-		defaultIconProps.position = 'left';
-
+	if (variant === 'icon' || variant === 'icon-filled') {
 		return (
 			<button
-				aria-live="assertive"
-				className={this.getClassName(isActive)}
+				aria-live="polite"
+				className={getClassName(isActive)}
 				disabled={disabled}
 				id={id}
-				onBlur={this.handleBlur}
-				onClick={this.handleClick}
+				onBlur={handleBlur}
+				onClick={handleClick}
 				onFocus={onFocus}
 				onKeyDown={onKeyDown}
 				onKeyPress={onKeyPress}
 				onKeyUp={onKeyUp}
+				onMouseDown={onMouseDown}
 				onMouseEnter={onMouseEnter}
-				onMouseLeave={this.handleBlur}
+				onMouseLeave={handleBlur}
 				tabIndex={tabIndex}
 				type="button"
 			>
-				<span className="slds-text-not-selected">
-					{stateOne.icon ? (
-						React.cloneElement(stateOne.icon, {
-							...defaultIconProps,
-							...stateOne.icon.props,
-							size: 'small',
-						})
-					) : (
-						<ButtonIcon
-							disabled={disabled}
-							name={stateOne.iconName}
-							size="small"
-							position="left"
-							className="slds-button__icon_stateful"
-						/>
-					)}
-					{stateOne.label}
-				</span>
-				<span className="slds-text-selected">
-					{stateTwo.icon ? (
-						React.cloneElement(stateTwo.icon, {
-							...defaultIconProps,
-							...stateTwo.icon.props,
-							size: 'small',
-						})
-					) : (
-						<ButtonIcon
-							disabled={disabled}
-							name={stateTwo.iconName}
-							size="small"
-							position="left"
-							className="slds-button__icon_stateful"
-						/>
-					)}
-					{stateTwo.label}
-				</span>
-				<span className="slds-text-selected-focus">
-					{stateThree.icon ? (
-						React.cloneElement(stateThree.icon, {
-							...defaultIconProps,
-							...stateThree.icon.props,
-							size: 'small',
-						})
-					) : (
-						<ButtonIcon
-							disabled={disabled}
-							name={stateThree.iconName}
-							size="small"
-							position="left"
-							className="slds-button__icon_stateful"
-						/>
-					)}
-					{stateThree.label}
-				</span>
+				{icon ? (
+					React.cloneElement(icon, {
+						...defaultIconProps,
+						...icon.props,
+					})
+				) : (
+					<ButtonIcon
+						disabled={disabled}
+						name={iconName}
+						size={iconSize}
+						className="slds-button__icon_stateful"
+					/>
+				)}
+				{iconAssistiveText ? (
+					<span className="slds-assistive-text">{iconAssistiveText}</span>
+				) : null}
 			</button>
 		);
 	}
-}
+
+	defaultIconProps.position = 'left';
+
+	return (
+		<button
+			aria-live="assertive"
+			className={getClassName(isActive)}
+			disabled={disabled}
+			id={id}
+			onBlur={handleBlur}
+			onClick={handleClick}
+			onFocus={onFocus}
+			onKeyDown={onKeyDown}
+			onKeyPress={onKeyPress}
+			onKeyUp={onKeyUp}
+			onMouseEnter={onMouseEnter}
+			onMouseLeave={handleBlur}
+			tabIndex={tabIndex}
+			type="button"
+		>
+			<span className="slds-text-not-selected">
+				{stateOne.icon ? (
+					React.cloneElement(stateOne.icon, {
+						...defaultIconProps,
+						...stateOne.icon.props,
+						size: 'small',
+					})
+				) : (
+					<ButtonIcon
+						disabled={disabled}
+						name={stateOne.iconName}
+						size="small"
+						position="left"
+						className="slds-button__icon_stateful"
+					/>
+				)}
+				{stateOne.label}
+			</span>
+			<span className="slds-text-selected">
+				{stateTwo.icon ? (
+					React.cloneElement(stateTwo.icon, {
+						...defaultIconProps,
+						...stateTwo.icon.props,
+						size: 'small',
+					})
+				) : (
+					<ButtonIcon
+						disabled={disabled}
+						name={stateTwo.iconName}
+						size="small"
+						position="left"
+						className="slds-button__icon_stateful"
+					/>
+				)}
+				{stateTwo.label}
+			</span>
+			<span className="slds-text-selected-focus">
+				{stateThree.icon ? (
+					React.cloneElement(stateThree.icon, {
+						...defaultIconProps,
+						...stateThree.icon.props,
+						size: 'small',
+					})
+				) : (
+					<ButtonIcon
+						disabled={disabled}
+						name={stateThree.iconName}
+						size="small"
+						position="left"
+						className="slds-button__icon_stateful"
+					/>
+				)}
+				{stateThree.label}
+			</span>
+		</button>
+	);
+};
 
 ButtonStateful.displayName = BUTTON_STATEFUL;
 ButtonStateful.propTypes = propTypes;
