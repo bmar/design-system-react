@@ -63,112 +63,106 @@ const defaultProps = { labels: {} };
 /**
  * The ButtonGroup component wraps other components (ie. Button, MenuDropdown, PopoverTooltip, Checkboxes, etc).
  */
-class ButtonGroup extends React.Component {
-	constructor(props) {
-		super(props);
-		this.generatedId = shortid.generate();
+const ButtonGroup = (props) => {
+	const generatedId = shortid.generate();
+
+	const getId = () => {
+		return props.id || generatedId;
+	};
+
+	// Merge objects of strings with their default object
+	const labels = assign({}, defaultProps.labels, props.labels);
+
+	const zeroIndexLength = React.Children.count(props.children) - 1;
+	let { children } = props;
+	if (zeroIndexLength > 0) {
+		children = React.Children.map(props.children, (child, index) => {
+			let newChild;
+			if (index === zeroIndexLength) {
+				newChild = React.cloneElement(child, {
+					triggerClassName: 'slds-button_last',
+				});
+			}
+
+			return newChild || child;
+		});
 	}
 
-	getId() {
-		return this.props.id || this.generatedId;
+	let component;
+
+	if (props.variant === 'checkbox') {
+		children = React.Children.map(props.children, (child) => {
+			const cloneProps = {
+				variant: 'button-group',
+			};
+			if (labels.error) {
+				cloneProps['aria-describedby'] = `button-group-error-${getId()}`;
+			}
+			return React.cloneElement(child, cloneProps);
+		});
+
+		component = (
+			<div
+				className={classNames('slds-checkbox_button-group', props.className)}
+				id={getId()}
+			>
+				{children}
+			</div>
+		);
+	} else if (props.variant === 'list') {
+		component = (
+			<ul
+				className={classNames('slds-button-group-list', props.className)}
+				id={getId()}
+			>
+				{React.Children.map(props.children, (child) => (
+					<li>{child}</li>
+				))}
+			</ul>
+		);
+	} else {
+		component = (
+			<div
+				className={classNames('slds-button-group', props.className)}
+				id={getId()}
+				role="group"
+			>
+				{children}
+			</div>
+		);
 	}
 
-	render() {
-		// Merge objects of strings with their default object
-		const labels = assign({}, defaultProps.labels, this.props.labels);
-
-		const zeroIndexLength = React.Children.count(this.props.children) - 1;
-		let { children } = this.props;
-		if (zeroIndexLength > 0) {
-			children = React.Children.map(this.props.children, (child, index) => {
-				let newChild;
-				if (index === zeroIndexLength) {
-					newChild = React.cloneElement(child, {
-						triggerClassName: 'slds-button_last',
-					});
-				}
-
-				return newChild || child;
-			});
-		}
-
-		let component;
-
-		if (this.props.variant === 'checkbox') {
-			children = React.Children.map(this.props.children, (child) => {
-				const cloneProps = {
-					variant: 'button-group',
-				};
-				if (labels.error) {
-					cloneProps['aria-describedby'] = `button-group-error-${this.getId()}`;
-				}
-				return React.cloneElement(child, cloneProps);
-			});
-
-			component = (
-				<div
-					className={classNames(
-						'slds-checkbox_button-group',
-						this.props.className
-					)}
-					id={this.getId()}
-				>
-					{children}
+	if (props.variant === 'checkbox' || props.labels.label) {
+		component = (
+			<fieldset
+				className={classNames(
+					'slds-form-element',
+					{
+						'slds-has-error': labels.error,
+					},
+					props.classNameContainer
+				)}
+			>
+				<legend className="slds-form-element__legend slds-form-element__label">
+					{props.labels.label}
+				</legend>
+				<div className="slds-form-element__control">
+					{component}
+					{labels.error ? (
+						<div
+							className="slds-form-element__help"
+							id={`button-group-error-${getId()}`}
+						>
+							{labels.error}
+						</div>
+					) : null}
 				</div>
-			);
-		} else if (this.props.variant === 'list') {
-			component = (
-				<ul
-					className={classNames('slds-button-group-list', this.props.className)}
-					id={this.getId()}
-				>
-					{React.Children.map(this.props.children, (child) => <li>{child}</li>)}
-				</ul>
-			);
-		} else {
-			component = (
-				<div
-					className={classNames('slds-button-group', this.props.className)}
-					id={this.getId()}
-					role="group"
-				>
-					{children}
-				</div>
-			);
-		}
-
-		if (this.props.variant === 'checkbox' || this.props.labels.label) {
-			component = (
-				<fieldset
-					className={classNames(
-						'slds-form-element',
-						{
-							'slds-has-error': labels.error,
-						},
-						this.props.classNameContainer
-					)}
-				>
-					<legend className="slds-form-element__legend slds-form-element__label">
-						{this.props.labels.label}
-					</legend>
-					<div className="slds-form-element__control">
-						{component}
-						{labels.error ? (
-							<div
-								className="slds-form-element__help"
-								id={`button-group-error-${this.getId()}`}
-							>
-								{labels.error}
-							</div>
-						) : null}
-					</div>
-				</fieldset>
-			);
-		}
-
-		return component;
+			</fieldset>
+		);
 	}
-}
+
+	return component;
+};
 
 ButtonGroup.displayName = BUTTON_GROUP;
 ButtonGroup.propTypes = propTypes;
