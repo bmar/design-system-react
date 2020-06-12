@@ -41,65 +41,47 @@ import { BRAND_BAND } from '../../utilities/constants';
  *
  * For more information on the problem, [see this Stack Overflow question](https://stackoverflow.com/questions/17766817/refused-to-apply-inline-style-because-it-violates-the-following-content-security)
  */
-class BrandBand extends React.Component {
-	static injectLightningBlueStyles() {
-		return (
-			<style>{`.slds-brand-band.dsr-brand-band_lightning-blue:before {
-	background-image: url(/assets/images/themes/oneSalesforce/banner-brand-default.png), linear-gradient(to top, rgba(175, 197, 222, 0) 0, #1B5F9E);
-}
-.slds-brand-band.dsr-brand-band_lightning-blue:after {
-	background-image: linear-gradient(to bottom, rgba(175, 197, 222, 0) 60%, #AFC5DE);
-}`}</style>
-		);
-	}
+const BrandBand = (props) => {
+	const generatedId = shortid.generate();
 
-	constructor(props) {
-		super(props);
-		this.generatedId = shortid.generate();
-	}
+	const getId = () => {
+		return props.id || generatedId;
+	};
 
-	getId() {
-		return this.props.id || this.generatedId;
-	}
-
-	render() {
-		const { props } = this;
-
-		return (
+	return (
+		<div
+			style={{
+				background: 'rgb(176, 196, 223)',
+				height: '100%',
+				position: 'relative',
+				width: '100%',
+				zIndex: 1,
+				...props.styleContainer,
+			}}
+		>
+			{BrandBand.injectLightningBlueStyles()}
 			<div
-				style={{
-					background: 'rgb(176, 196, 223)',
-					height: '100%',
-					position: 'relative',
-					width: '100%',
-					zIndex: 1,
-					...props.styleContainer,
-				}}
-			>
-				{BrandBand.injectLightningBlueStyles()}
-				<div
-					className={classNames(
-						'slds-brand-band',
-						{
-							'slds-brand-band_small': props.size === 'small',
-							'slds-brand-band_medium': props.size === 'medium',
-							'slds-brand-band_large': props.size === 'large',
-							'slds-brand-band_cover': props.backgroundSize === 'cover',
-							'slds-brand-band_none': props.image === 'none',
+				className={classNames(
+					'slds-brand-band',
+					{
+						'slds-brand-band_small': props.size === 'small',
+						'slds-brand-band_medium': props.size === 'medium',
+						'slds-brand-band_large': props.size === 'large',
+						'slds-brand-band_cover': props.backgroundSize === 'cover',
+						'slds-brand-band_none': props.image === 'none',
 
-							'dsr-brand-band_lightning-blue': true,
-						},
-						props.className
-					)}
-					id={this.getId()}
-					style={props.style}
-				>
-					{props.children}
-				</div>
+						'dsr-brand-band_lightning-blue': true,
+					},
+					props.className
+				)}
+				id={getId()}
+				style={props.style}
+			>
+				{props.children}
 			</div>
-		);
-	}
-}
+		</div>
+	);
+};
 
 BrandBand.displayName = BRAND_BAND;
 
@@ -159,6 +141,17 @@ BrandBand.defaultProps = {
 	image: 'default',
 	size: 'medium',
 	theme: 'default',
+};
+
+BrandBand.injectLightningBlueStyles = () => {
+	return (
+		<style>{`.slds-brand-band.dsr-brand-band_lightning-blue:before {
+background-image: url(/assets/images/themes/oneSalesforce/banner-brand-default.png), linear-gradient(to top, rgba(175, 197, 222, 0) 0, #1B5F9E);
+}
+.slds-brand-band.dsr-brand-band_lightning-blue:after {
+background-image: linear-gradient(to bottom, rgba(175, 197, 222, 0) 60%, #AFC5DE);
+}`}</style>
+	);
 };
 
 export default BrandBand;
