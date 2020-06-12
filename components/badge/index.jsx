@@ -21,59 +21,54 @@ import { BADGE } from '../../utilities/constants';
 /**
  * Badges are labels which hold small amounts of information.
  */
-class Badge extends React.Component {
-	constructor(props) {
-		super(props);
-		this.generatedId = shortid.generate();
-	}
+const Badge = (props) => {
+	const generatedId = shortid.generate();
 
 	/**
 	 * Get the Badge's HTML id. Generate a new one if no ID present.
 	 */
-	getId() {
-		return this.props.id || this.generatedId;
-	}
+	const getId = () => {
+		return props.id || generatedId;
+	};
 
-	render() {
-		const icon = (
-			<span
-				className={classNames(
-					'slds-badge__icon',
-					`slds-badge__icon_${this.props.iconAlignment}`
-				)}
-				style={this.props.style}
-			>
-				{this.props.icon}
-			</span>
-		);
+	const icon = (
+		<span
+			className={classNames(
+				'slds-badge__icon',
+				`slds-badge__icon_${props.iconAlignment}`
+			)}
+			style={props.style}
+		>
+			{props.icon}
+		</span>
+	);
 
-		return (
-			<span
-				id={this.getId()}
-				className={classNames(
-					'slds-badge',
-					{
-						'slds-badge_inverse': this.props.color === 'inverse',
-						'slds-badge_lightest': this.props.color === 'light',
-					},
-					this.props.className
-				)}
-			>
-				{this.props.iconAlignment === 'left' ? (
-					<React.Fragment>
-						{icon}
-						{this.props.content}
-					</React.Fragment>
-				) : (
-					<React.Fragment>
-						{this.props.content}
-						{icon}
-					</React.Fragment>
-				)}
-			</span>
-		);
-	}
-}
+	return (
+		<span
+			id={getId()}
+			className={classNames(
+				'slds-badge',
+				{
+					'slds-badge_inverse': props.color === 'inverse',
+					'slds-badge_lightest': props.color === 'light',
+				},
+				props.className
+			)}
+		>
+			{props.iconAlignment === 'left' ? (
+				<React.Fragment>
+					{icon}
+					{props.content}
+				</React.Fragment>
+			) : (
+				<React.Fragment>
+					{props.content}
+					{icon}
+				</React.Fragment>
+			)}
+		</span>
+	);
+};
 
 Badge.displayName = BADGE;
 

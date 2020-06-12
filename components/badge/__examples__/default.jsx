@@ -2,16 +2,16 @@ import React from 'react';
 import Badge from '~/components/badge';
 import IconSettings from '~/components/icon-settings';
 
-class Example extends React.Component {
-	static displayName = 'badgeExample';
+const displayName = 'badgeExample';
 
-	render() {
-		return (
-			<IconSettings iconPath="/assets/icons">
-				<Badge id="badge-base-example" content="423 Credits Available" />
-			</IconSettings>
-		);
-	}
-}
+const Example = (props) => {
+	return (
+		<IconSettings iconPath="/assets/icons">
+			<Badge id="badge-base-example" content="423 Credits Available" />
+		</IconSettings>
+	);
+};
+
+Example.displayName = displayName;
 
 export default Example;
