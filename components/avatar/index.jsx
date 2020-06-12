@@ -6,7 +6,7 @@
 // Implements the [Avatar design pattern](https://lightningdesignsystem.com/components/avatar/) in React.
 
 // ### React
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 // This component's `checkProps` which issues warnings to developers about properties when in development mode (similar to React's built in development tools)
@@ -88,18 +88,13 @@ const defaultProps = {
  render. If `variant='entity'`, an account icon will render.
  */
 
-class Avatar extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			imgLoadError: false,
-		};
+const Avatar = (props) => {
+	const [imgLoadError, setImgLoadError] = useState(false);
 
-		checkProps(AVATAR, props, componentDoc);
-	}
+	checkProps(AVATAR, props, componentDoc);
 
-	buildInitials() {
-		const { label } = this.props;
+	const buildInitials = () => {
+		const { label } = props;
 		const name = label.trim();
 		const nameParts = name.split(' ');
 		if (nameParts.length > 1) {
@@ -109,33 +104,33 @@ class Avatar extends React.Component {
 			);
 		}
 		return (name[0] || '').toUpperCase() + (name[1] || '').toLowerCase();
-	}
+	};
 
-	handleImageError() {
-		return this.setState(() => ({ imgLoadError: true }));
-	}
+	const handleImageError = () => {
+		return setImgLoadError(true);
+	};
 
-	renderBaseAvatar() {
-		const { imgAlt, imgSrc, title } = this.props;
+	const renderBaseAvatar = () => {
+		const { imgAlt, imgSrc, title } = props;
 		return (
 			<img
 				alt={imgAlt}
 				src={imgSrc}
-				onError={() => this.handleImageError()}
+				onError={() => handleImageError()}
 				title={title}
 			/>
 		);
-	}
+	};
 
-	renderIconAvatar() {
-		const { variant } = this.props;
+	const renderIconAvatar = () => {
+		const { variant } = props;
 		const iconAssistiveText =
-			typeof this.props.assistiveText === 'string'
-				? this.props.assistiveText
+			typeof props.assistiveText === 'string'
+				? props.assistiveText
 				: {
 						...defaultProps.assistiveText,
-						...this.props.assistiveText,
-					}.icon;
+						...props.assistiveText,
+				  }.icon;
 		return (
 			<UtilityIcon
 				assistiveText={{ label: iconAssistiveText }}
@@ -143,10 +138,10 @@ class Avatar extends React.Component {
 				name={variant === 'entity' ? 'account' : 'user'}
 			/>
 		);
-	}
+	};
 
-	renderInitialsAvatar() {
-		const { initials, inverse, label, variant } = this.props;
+	const renderInitialsAvatar = () => {
+		const { initials, inverse, label, variant } = props;
 		return (
 			<abbr
 				className={classNames('slds-avatar__initials', {
@@ -156,42 +151,40 @@ class Avatar extends React.Component {
 				})}
 				title={label}
 			>
-				{initials ? initials : this.buildInitials()}
+				{initials ? initials : buildInitials()}
 			</abbr>
 		);
-	}
+	};
 
-	render() {
-		const { imgSrc, initials, variant, label, size } = this.props;
+	const { imgSrc, initials, variant, label, size } = props;
 
-		const renderAvatar = () => {
-			/* eslint no-unneeded-ternary: */
-			if (!this.state.imgLoadError && imgSrc) {
-				return this.renderBaseAvatar();
-			}
-			if (initials || (label && label.trim())) {
-				return this.renderInitialsAvatar();
-			}
-			return this.renderIconAvatar();
-		};
+	const renderAvatar = () => {
+		/* eslint no-unneeded-ternary: */
+		if (!imgLoadError && imgSrc) {
+			return renderBaseAvatar();
+		}
+		if (initials || (label && label.trim())) {
+			return renderInitialsAvatar();
+		}
+		return renderIconAvatar();
+	};
 
-		return (
-			<div>
-				<span
-					className={classNames('slds-avatar', {
-						'slds-avatar_circle': variant === 'user',
-						'slds-avatar_x-small': size === 'x-small',
-						'slds-avatar_small': size === 'small',
-						'slds-avatar_medium': size === 'medium',
-						'slds-avatar_large': size === 'large',
-					})}
-				>
-					{renderAvatar()}
-				</span>
-			</div>
-		);
-	}
-}
+	return (
+		<div>
+			<span
+				className={classNames('slds-avatar', {
+					'slds-avatar_circle': variant === 'user',
+					'slds-avatar_x-small': size === 'x-small',
+					'slds-avatar_small': size === 'small',
+					'slds-avatar_medium': size === 'medium',
+					'slds-avatar_large': size === 'large',
+				})}
+			>
+				{renderAvatar()}
+			</span>
+		</div>
+	);
+};
 
 Avatar.defaultProps = defaultProps;
 Avatar.displayName = displayName;
