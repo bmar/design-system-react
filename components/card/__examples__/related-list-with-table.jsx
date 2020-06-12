@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import IconSettings from '~/components/icon-settings';
 import Button from '~/components/button'; // `~` is replaced with design-system-react at runtime
@@ -15,72 +15,69 @@ const sampleItems = [
 	{ id: '3', name: 'Cloud City' },
 ];
 
-class Example extends React.Component {
-	static displayName = 'CardExample';
+const displayName = 'CardExample';
 
-	state = {
-		items: sampleItems,
-		isFiltering: false,
-	};
+const Example = (props) => {
+	const [items, setItems] = useState(sampleItems);
+	const [isFiltering, setIsFiltering] = useState(false);
 
-	handleFilterChange = (event) => {
+	const handleFilterChange = (event) => {
 		const filteredItems = sampleItems.filter((item) =>
 			RegExp(event.target.value, 'i').test(item.name)
 		);
-		this.setState({ isFiltering: true, items: filteredItems });
+		setIsFiltering(true);
+		setItems(filteredItems);
 	};
 
-	handleDeleteAllItems = () => {
-		this.setState({ isFiltering: false, items: [] });
+	const handleDeleteAllItems = () => {
+		setIsFiltering(false);
+		setItems([]);
 	};
 
-	handleAddItem = () => {
-		this.setState({ items: sampleItems });
+	const handleAddItem = () => {
+		setItems(sampleItems);
 	};
 
-	render() {
-		const isEmpty = this.state.items.length === 0;
+	const isEmpty = items.length === 0;
 
-		return (
-			<IconSettings iconPath="/assets/icons">
-				<div className="slds-grid slds-grid_vertical">
-					<Card
-						id="ExampleCard"
-						filter={
-							(!isEmpty || this.state.isFiltering) && (
-								<CardFilter onChange={this.handleFilterChange} />
-							)
-						}
-						headerActions={
-							!isEmpty && (
-								<Button
-									label="Delete All Items"
-									onClick={this.handleDeleteAllItems}
-								/>
-							)
-						}
-						heading="Releated Items"
-						icon={<Icon category="standard" name="document" size="small" />}
-						empty={
-							isEmpty ? (
-								<CardEmpty heading="No Related Items">
-									<Button label="Add Item" onClick={this.handleAddItem} />
-								</CardEmpty>
-							) : null
-						}
-					>
-						<DataTable items={this.state.items} id="DataTableExample-1">
-							<DataTableColumn
-								label="Opportunity Name"
-								property="name"
-								truncate
-							/>
-						</DataTable>
-					</Card>
-				</div>
-			</IconSettings>
-		);
-	}
-}
+	return (
+		<IconSettings iconPath="/assets/icons">
+			<div className="slds-grid slds-grid_vertical">
+				<Card
+					id="ExampleCard"
+					filter={
+						(!isEmpty || isFiltering) && (
+							<CardFilter onChange={handleFilterChange} />
+						)
+					}
+					headerActions={
+						!isEmpty && (
+							<Button label="Delete All Items" onClick={handleDeleteAllItems} />
+						)
+					}
+					heading="Releated Items"
+					icon={<Icon category="standard" name="document" size="small" />}
+					empty={
+						isEmpty ? (
+							<CardEmpty heading="No Related Items">
+								<Button label="Add Item" onClick={handleAddItem} />
+							</CardEmpty>
+						) : null
+					}
+				>
+					<DataTable items={items} id="DataTableExample-1">
+						<DataTableColumn
+							label="Opportunity Name"
+							property="name"
+							truncate
+						/>
+					</DataTable>
+				</Card>
+			</div>
+		</IconSettings>
+	);
+};
+
+Example.displayName = displayName;
 
 export default Example; // export is replaced with `ReactDOM.render(<Example />, mountNode);` at runtime
