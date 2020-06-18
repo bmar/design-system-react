@@ -16,48 +16,45 @@ const selectedInnerStyle = {
 	borderRadius: '2px',
 };
 
-class SwatchOption extends React.Component {
-	static displayName = 'SLDSSwatchOption';
+const displayName = 'SLDSSwatchOption';
 
-	render() {
-		return (
-			<li
-				className="slds-color-picker__swatch"
+const SwatchOption = (props) => {
+	return (
+		<li
+			className="slds-color-picker__swatch"
+			style={
+				props.workingColor && props.workingColor.hex === props.color
+					? selectedStyle
+					: {}
+			}
+			role="presentation"
+		>
+			<a
+				aria-selected={
+					props.workingColor && props.workingColor.hex === props.color
+				}
+				className="slds-color-picker__swatch-trigger"
+				onClick={(event) => {
+					handleClick(event, {
+						hex: props.color,
+						onSelect: props.onSelect,
+					});
+				}}
+				ref={props.swatchOptionRef}
+				role="option"
 				style={
-					this.props.workingColor &&
-					this.props.workingColor.hex === this.props.color
-						? selectedStyle
+					props.workingColor && props.workingColor === props.color
+						? selectedInnerStyle
 						: {}
 				}
-				role="presentation"
+				tabIndex={props.tabIndex}
 			>
-				<a
-					aria-selected={
-						this.props.workingColor &&
-						this.props.workingColor.hex === this.props.color
-					}
-					className="slds-color-picker__swatch-trigger"
-					onClick={(event) => {
-						handleClick(event, {
-							hex: this.props.color,
-							onSelect: this.props.onSelect,
-						});
-					}}
-					ref={this.props.swatchOptionRef}
-					role="option"
-					style={
-						this.props.workingColor &&
-						this.props.workingColor === this.props.color
-							? selectedInnerStyle
-							: {}
-					}
-					tabIndex={this.props.tabIndex}
-				>
-					<Swatch color={this.props.color} labels={this.props.labels} />
-				</a>
-			</li>
-		);
-	}
-}
+				<Swatch color={props.color} labels={props.labels} />
+			</a>
+		</li>
+	);
+};
+
+SwatchOption.displayName = displayName;
 
 export default SwatchOption;

@@ -8,15 +8,12 @@ import EventUtil from '../../../utilities/event';
 import { DIRECTIONS } from '../../utilities/UNSAFE_direction';
 import LanguageDirection from '../../utilities/UNSAFE_direction/private/language-direction';
 
-class SwatchPicker extends React.Component {
-	static displayName = 'SLDSSwatchPicker';
+const displayName = 'SLDSSwatchPicker';
 
-	constructor(props) {
-		super(props);
-		this.swatchColorRefs = {};
-	}
+const SwatchPicker = (props) => {
+	let swatchColorRefs = {};
 
-	selectPreviousColor = (event, props) => {
+	const selectPreviousColor = (event, props) => {
 		const index = findIndex(
 			props.swatchColors,
 			(item) => item === props.color.hex
@@ -28,10 +25,10 @@ class SwatchPicker extends React.Component {
 			hex: prevColor,
 		});
 
-		this.swatchColorRefs[prevColor].focus();
+		swatchColorRefs[prevColor].focus();
 	};
 
-	selectNextColor = (event, props) => {
+	const selectNextColor = (event, props) => {
 		const index = findIndex(
 			props.swatchColors,
 			(item) => item === props.color.hex
@@ -49,31 +46,31 @@ class SwatchPicker extends React.Component {
 			hex: nextColor,
 		});
 
-		this.swatchColorRefs[nextColor].focus();
+		swatchColorRefs[nextColor].focus();
 	};
 
-	handleKeyDown = (event, props) => {
+	const handleKeyDown = (event, props) => {
 		const keyDownCallbacks = {
 			[KEYS.RIGHT]: () => {
 				if (props.direction === DIRECTIONS.RTL) {
-					this.selectNextColor(event, props);
+					selectNextColor(event, props);
 				} else {
-					this.selectPreviousColor(event, props);
+					selectPreviousColor(event, props);
 				}
 			},
 			[KEYS.DOWN]: () => {
-				this.selectPreviousColor(event, props);
+				selectPreviousColor(event, props);
 			},
 
 			[KEYS.LEFT]: () => {
 				if (props.direction === DIRECTIONS.RTL) {
-					this.selectPreviousColor(event, props);
+					selectPreviousColor(event, props);
 				} else {
-					this.selectNextColor(event, props);
+					selectNextColor(event, props);
 				}
 			},
 			[KEYS.UP]: () => {
-				this.selectNextColor(event, props);
+				selectNextColor(event, props);
 			},
 		};
 
@@ -85,44 +82,42 @@ class SwatchPicker extends React.Component {
 		}
 	};
 
-	addRef = (color) => (el) => {
-		this.swatchColorRefs[color] = el;
+	const addRef = (color) => (el) => {
+		swatchColorRefs[color] = el;
 	};
 
-	render() {
-		const isSelectedColorInSwatch = this.props.swatchColors.includes(
-			this.props.color.hex
-		);
+	const isSelectedColorInSwatch = props.swatchColors.includes(props.color.hex);
 
-		return (
-			<ul
-				className="slds-color-picker__swatches"
-				role="listbox"
-				onKeyDown={(event) => {
-					this.handleKeyDown(event, {
-						...this.props,
-					});
-				}}
-			>
-				{this.props.swatchColors.map((color, index) => (
-					<SwatchOption
-						color={color}
-						key={color}
-						labels={this.props.labels}
-						onSelect={this.props.onSelect}
-						swatchOptionRef={this.addRef(color)}
-						workingColor={this.props.color}
-						tabIndex={
-							(this.props.color && this.props.color.hex === color) ||
-							(index === 0 && !isSelectedColorInSwatch)
-								? 0
-								: -1
-						}
-					/>
-				))}
-			</ul>
-		);
-	}
-}
+	return (
+		<ul
+			className="slds-color-picker__swatches"
+			role="listbox"
+			onKeyDown={(event) => {
+				handleKeyDown(event, {
+					...props,
+				});
+			}}
+		>
+			{props.swatchColors.map((color, index) => (
+				<SwatchOption
+					color={color}
+					key={color}
+					labels={props.labels}
+					onSelect={props.onSelect}
+					swatchOptionRef={addRef(color)}
+					workingColor={props.color}
+					tabIndex={
+						(props.color && props.color.hex === color) ||
+						(index === 0 && !isSelectedColorInSwatch)
+							? 0
+							: -1
+					}
+				/>
+			))}
+		</ul>
+	);
+};
+
+SwatchPicker.displayName = displayName;
 
 export default LanguageDirection(SwatchPicker);

@@ -2,7 +2,7 @@
 /* eslint-disable react/sort-comp */
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import shortid from 'shortid';
 import assign from 'lodash.assign';
 
@@ -237,409 +237,372 @@ const defaultProps = {
 /**
  * The Unified Color Picker component allows for a fully accessible and configurable color picker, allowing the user to pick from a set of predefined colors (swatches), or to pick a custom color using a HSB selection interface. It can be configured to show one or both of those color selection interfaces. View [component blueprint guidelines](https://lightningdesignsystem.com/components/color-picker/).
  */
-class ColorPicker extends React.Component {
-	static displayName = COLOR_PICKER;
+const ColorPicker = (props) => {
+	const generatedId = props.id || shortid.generate();
+	const workingColor = ColorUtils.getNewColor(
+		{
+			hex: props.valueWorking || props.value,
+		},
+		props.events.onValidateWorkingColor
+	);
 
-	static propTypes = propTypes;
+	const [currentColorState, setCurrentColorState] = useState(
+		props.value != null ? props.value : ''
+	);
+	const [disabled, setDisabled] = useState(props.disabled);
+	const [isOpen, setIsOpen] = useState(props.isOpen);
+	const [workingColorState, setWorkingColorState] = useState(workingColor);
+	const [previousWorkingColor, setPreviousWorkingColor] = useState(
+		workingColor
+	);
+	const [colorErrorMessage, setColorErrorMessage] = useState(props.errorText);
 
-	static defaultProps = defaultProps;
+	checkProps(COLOR_PICKER, props, componentDoc);
 
-	constructor(props) {
-		super(props);
+	useEffect(() => {
+		setCurrentColorState(props.value);
+	}, [props.value]);
 
-		this.generatedId = props.id || shortid.generate();
-		const workingColor = ColorUtils.getNewColor(
-			{
-				hex: props.valueWorking || props.value,
-			},
-			props.events.onValidateWorkingColor
-		);
-		this.state = {
-			currentColor: props.value != null ? props.value : '',
-			disabled: props.disabled,
-			isOpen: props.isOpen,
-			workingColor,
-			previousWorkingColor: workingColor,
-			colorErrorMessage: props.errorText,
-		};
-
-		checkProps(COLOR_PICKER, props, componentDoc);
-	}
-
-	componentDidUpdate(prevProps) {
-		// The following are only present to allow props to update the state if they get out of sync (for instance, the external store is updated).
-		const nextState = {};
-
-		if (this.props.value !== prevProps.value) {
-			nextState.currentColor = this.props.value;
-		}
-
-		if (this.props.valueWorking !== prevProps.valueWorking) {
-			nextState.workingColor = ColorUtils.getNewColor(
+	useEffect(() => {
+		setWorkingColorState(
+			ColorUtils.getNewColor(
 				{
-					hex: this.props.valueWorking,
+					hex: props.valueWorking,
 				},
-				this.props.events.onValidateWorkingColor
-			);
-		}
+				props.events.onValidateWorkingColor
+			)
+		);
+	}, [props.valueWorking]);
 
-		if (this.props.disabled !== prevProps.disabled) {
-			nextState.disabled = this.props.disabled;
-		}
+	useEffect(() => {
+		setDisabled(props.disabled);
+	}, [props.disabled]);
 
-		if (Object.entries(nextState).length !== 0) {
-			// eslint-disable-next-line react/no-did-update-set-state
-			this.setState(nextState);
-		}
-	}
-
-	getInput({ labels }) {
-		return this.props.hideInput ? null : (
+	const getInput = ({ labels }) => {
+		return props.hideInput ? null : (
 			<Input
 				aria-describedby={
-					!this.state.isOpen && this.state.colorErrorMessage
-						? `color-picker-summary-error-${this.generatedId}`
+					!isOpen && colorErrorMessage
+						? `color-picker-summary-error-${generatedId}`
 						: undefined
 				}
 				className={classNames(
 					'slds-color-picker__summary-input',
 					'slds-align-top',
 					{
-						'slds-has-error': !!this.state.colorErrorMessage,
+						'slds-has-error': !!colorErrorMessage,
 					}
 				)}
-				disabled={this.props.disabled}
-				id={`color-picker-summary-input-${this.generatedId}`}
+				disabled={props.disabled}
+				id={`color-picker-summary-input-${generatedId}`}
 				onChange={(event) => {
-					this.handleHexInputChange(event, { labels });
+					handleHexInputChange(event, { labels });
 				}}
-				value={this.state.currentColor}
+				value={currentColorState}
 			/>
 		);
-	}
+	};
 
-	getDefaultTab({ labels }) {
+	const getDefaultTab = ({ labels }) => {
 		return (
-			(this.props.variant === 'base' || this.props.variant === 'swatches') && (
+			(props.variant === 'base' || props.variant === 'swatches') && (
 				<TabsPanel label={labels.swatchTab}>
 					<SwatchPicker
-						color={this.state.workingColor}
+						color={workingColorState}
 						labels={labels}
-						onSelect={this.handleSwatchSelect}
-						swatchColors={this.props.swatchColors}
+						onSelect={handleSwatchSelect}
+						swatchColors={props.swatchColors}
 					/>
 				</TabsPanel>
 			)
 		);
-	}
+	};
 
-	getCustomTab({ labels }) {
+	const getCustomTab = ({ labels }) => {
 		return (
-			(this.props.variant === 'base' || this.props.variant === 'custom') && (
+			(props.variant === 'base' || props.variant === 'custom') && (
 				<TabsPanel label={labels.customTab}>
 					<CustomColor
-						assistiveText={this.props.assistiveText}
-						id={this.generatedId}
-						color={this.state.workingColor}
-						errorTextWorkingColor={this.props.errorTextWorkingColor}
-						previousColor={this.state.previousWorkingColor}
+						assistiveText={props.assistiveText}
+						id={generatedId}
+						color={workingColorState}
+						errorTextWorkingColor={props.errorTextWorkingColor}
+						previousColor={previousWorkingColor}
 						labels={labels}
-						onBlueChange={this.handleColorChange('blue')}
-						onGreenChange={this.handleColorChange('green')}
-						onHexChange={this.handleColorChange('hex')}
-						onHueChange={this.handleColorChange('hue')}
-						onRedChange={this.handleColorChange('red')}
-						onSwatchChange={this.handleSwatchChange}
-						onSaturationValueChange={this.handleSaturationValueChange}
-						onSaturationNavigate={this.handleNavigate('saturation')}
-						onValueNavigate={this.handleNavigate('value')}
+						onBlueChange={handleColorChange('blue')}
+						onGreenChange={handleColorChange('green')}
+						onHexChange={handleColorChange('hex')}
+						onHueChange={handleColorChange('hue')}
+						onRedChange={handleColorChange('red')}
+						onSwatchChange={handleSwatchChange}
+						onSaturationValueChange={handleSaturationValueChange}
+						onSaturationNavigate={handleNavigate('saturation')}
+						onValueNavigate={handleNavigate('value')}
 					/>
 				</TabsPanel>
 			)
 		);
-	}
+	};
 
-	getPopover({ labels }) {
+	const getPopover = ({ labels }) => {
 		const popoverBody = (
 			<Tabs
-				id={`color-picker-tabs-${this.generatedId}`}
-				defaultSelectedIndex={
-					this.props.defaultSelectedTab === 'custom' ? 1 : 0
-				}
+				id={`color-picker-tabs-${generatedId}`}
+				defaultSelectedIndex={props.defaultSelectedTab === 'custom' ? 1 : 0}
 			>
-				{this.getDefaultTab({ labels })}
-				{this.getCustomTab({ labels })}
+				{getDefaultTab({ labels })}
+				{getCustomTab({ labels })}
 			</Tabs>
 		);
 		const popoverFooter = (
 			<div className="slds-color-picker__selector-footer">
 				<Button
 					className="slds-color-picker__selector-cancel"
-					id={`color-picker-footer-cancel-${this.generatedId}`}
+					id={`color-picker-footer-cancel-${generatedId}`}
 					label={labels.cancelButton}
-					onClick={this.handleCancel}
+					onClick={handleCancel}
 					variant="neutral"
 				/>
 				<Button
 					className="slds-color-picker__selector-submit"
-					disabled={
-						Object.keys(this.state.workingColor.errors || {}).length > 0
-					}
-					id={`color-picker-footer-submit-${this.generatedId}`}
+					disabled={Object.keys(workingColorState.errors || {}).length > 0}
+					id={`color-picker-footer-submit-${generatedId}`}
 					label={labels.submitButton}
-					onClick={this.handleSubmitButtonClick}
+					onClick={handleSubmitButtonClick}
 					variant="brand"
 				/>
 			</div>
 		);
 		return (
 			<Popover
-				ariaLabelledby={`color-picker-label-${this.generatedId}`}
+				ariaLabelledby={`color-picker-label-${generatedId}`}
 				align="bottom left"
 				body={popoverBody}
 				className={classNames(
 					'slds-color-picker__selector',
-					this.props.classNameMenu
+					props.classNameMenu
 				)}
 				footer={popoverFooter}
 				hasNoCloseButton
 				hasNoNubbin
-				hasStaticAlignment={this.props.hasStaticAlignment}
-				id={`slds-color-picker__selector-${this.generatedId}`}
-				isOpen={this.state.isOpen}
-				onClose={this.props.onClose}
-				onOpen={this.props.onOpen}
-				onRequestClose={this.handleOnRequestClose}
-				position={this.props.menuPosition}
+				hasStaticAlignment={props.hasStaticAlignment}
+				id={`slds-color-picker__selector-${generatedId}`}
+				isOpen={isOpen}
+				onClose={props.onClose}
+				onOpen={props.onOpen}
+				onRequestClose={handleOnRequestClose}
+				position={props.menuPosition}
 			>
 				<Button
 					className="slds-color-picker__summary-button"
-					disabled={this.props.disabled}
+					disabled={props.disabled}
 					iconClassName="slds-m-left_xx-small"
 					iconPosition="right"
 					iconVariant="more"
-					id={`slds-color-picker__summary-button-${this.generatedId}`}
-					label={<Swatch color={this.state.currentColor} labels={labels} />}
-					onClick={this.handleSwatchButtonClick}
+					id={`slds-color-picker__summary-button-${generatedId}`}
+					label={<Swatch color={currentColorState} labels={labels} />}
+					onClick={handleSwatchButtonClick}
 					variant="icon"
 				/>
 			</Popover>
 		);
-	}
+	};
 
-	setWorkingColor(event, color) {
+	const setWorkingColor = (event, color) => {
 		const newColor = ColorUtils.getNewColor(
 			color,
-			this.props.events.onValidateWorkingColor,
-			// eslint-disable-next-line react/no-access-state-in-setstate
-			this.state.workingColor
+			props.events.onValidateWorkingColor,
+			workingColorState
 		);
-		this.setState({
-			workingColor: newColor,
-			// eslint-disable-next-line react/no-access-state-in-setstate
-			previousWorkingColor: this.state.workingColor,
-		});
+		setWorkingColorState(newColor);
+		setPreviousWorkingColor(workingColorState);
 
-		if (this.props.events.onWorkingColorChange) {
-			this.props.events.onWorkingColorChange(event, { color: newColor });
+		if (props.events.onWorkingColorChange) {
+			props.events.onWorkingColorChange(event, { color: newColor });
 		}
-	}
+	};
 
-	handleSwatchChange = (event) => {
-		this.setWorkingColor(event, {
+	const handleSwatchChange = (event) => {
+		setWorkingColor(event, {
 			hex: event.target.value,
 		});
 	};
 
-	handleOnRequestClose = (event, { trigger }) => {
+	const handleOnRequestClose = (event, { trigger }) => {
 		if (trigger === 'clickOutside' || trigger === 'cancel') {
-			this.handleCancelState();
+			handleCancelState();
 		}
 
-		if (this.props.onRequestClose) {
-			this.props.onRequestClose(event, { trigger });
-		}
-	};
-
-	handleClickOutside = (event) => {
-		this.handleCancelButtonClick(event);
-	};
-
-	handleCancel = (event) => {
-		this.handleCancelState();
-
-		if (this.props.onRequestClose) {
-			this.props.onRequestClose(event, { trigger: 'cancel' });
+		if (props.onRequestClose) {
+			props.onRequestClose(event, { trigger });
 		}
 	};
 
-	handleCancelState = () => {
+	const handleClickOutside = (event) => {
+		handleCancelButtonClick(event);
+	};
+
+	const handleCancel = (event) => {
+		handleCancelState();
+
+		if (props.onRequestClose) {
+			props.onRequestClose(event, { trigger: 'cancel' });
+		}
+	};
+
+	const handleCancelState = () => {
 		const workingColor = ColorUtils.getNewColor(
 			{
 				// eslint-disable-next-line react/no-access-state-in-setstate
-				hex: this.state.currentColor,
+				hex: currentColorState,
 			},
-			this.props.events.onValidateWorkingColor
+			props.events.onValidateWorkingColor
 		);
-		this.setState({
-			isOpen: false,
-			workingColor,
-			previousWorkingColor: workingColor,
-		});
+		setIsOpen(false);
+		setWorkingColorState(workingColor);
+		setPreviousWorkingColor(workingColor);
 	};
 
-	handleColorChange(property) {
+	const handleColorChange = (property) => {
 		return (event) => {
 			const colorProperties = {};
 			colorProperties[property] = event.target.value;
-			this.setWorkingColor(event, colorProperties);
+			setWorkingColor(event, colorProperties);
 		};
-	}
+	};
 
-	handleHexInputChange = (event, { labels }) => {
+	const handleHexInputChange = (event, { labels }) => {
 		const currentColor = event.target.value;
 		const namedColorHex = ColorUtils.getHexFromNamedColor(currentColor);
 		let isValid = false;
 
-		if (this.props.events.onValidateColor) {
-			isValid = this.props.events.onValidateColor(currentColor);
+		if (props.events.onValidateColor) {
+			isValid = props.events.onValidateColor(currentColor);
 		} else {
 			isValid = namedColorHex ? true : ColorUtils.isValidHex(currentColor);
 		}
 
-		this.setState({
-			currentColor,
-			workingColor: ColorUtils.getNewColor(
+		setCurrentColorState(currentColor);
+		setWorkingColorState(
+			ColorUtils.getNewColor(
 				{
 					hex: namedColorHex || currentColor,
 					name: namedColorHex ? currentColor.toLowerCase() : null,
 				},
-				this.props.events.onValidateWorkingColor
-			),
-			colorErrorMessage: isValid ? '' : labels.invalidColor,
-		});
+				props.events.onValidateWorkingColor
+			)
+		);
+		setColorErrorMessage(isValid ? '' : labels.invalidColor);
 
-		if (this.props.events.onChange) {
-			this.props.events.onChange(event, {
+		if (props.events.onChange) {
+			props.events.onChange(event, {
 				color: currentColor,
 				isValid,
 			});
 		}
 	};
 
-	handleNavigate(property) {
+	const handleNavigate = (property) => {
 		return (event, { delta }) => {
 			const colorProperties = {};
 			colorProperties[property] = delta;
 			const newColor = ColorUtils.getDeltaColor(
 				colorProperties,
-				this.props.events.onValidateWorkingColor,
-				// eslint-disable-next-line react/no-access-state-in-setstate
-				this.state.workingColor
+				props.events.onValidateWorkingColor,
+				workingColorState
 			);
-			this.setState({
-				workingColor: newColor,
-				// eslint-disable-next-line react/no-access-state-in-setstate
-				previousWorkingColor: this.state.workingColor,
-			});
+			setWorkingColorState(newColor);
+			setPreviousWorkingColor(workingColorState);
 
-			if (this.props.events.onWorkingColorChange) {
-				this.props.events.onWorkingColorChange(event, { color: newColor });
+			if (props.events.onWorkingColorChange) {
+				props.events.onWorkingColorChange(event, { color: newColor });
 			}
 		};
-	}
+	};
 
-	handleSaturationValueChange = (event, { saturation, value }) => {
-		this.setWorkingColor(event, {
+	const handleSaturationValueChange = (event, { saturation, value }) => {
+		setWorkingColor(event, {
 			saturation,
 			value,
 		});
 	};
 
-	handleSubmitButtonClick = (event) => {
-		this.setState({
-			isOpen: false,
-			// eslint-disable-next-line react/no-access-state-in-setstate
-			currentColor: this.state.workingColor.hex,
-			colorErrorMessage: '',
-		});
-		if (this.props.events.onChange) {
-			this.props.events.onChange(event, {
-				color: this.state.workingColor.hex,
+	const handleSubmitButtonClick = (event) => {
+		setIsOpen(false);
+		setCurrentColorState(workingColorState.hex);
+		setColorErrorMessage('');
+		if (props.events.onChange) {
+			props.events.onChange(event, {
+				color: workingColorState.hex,
 				isValid: true,
 			});
 		}
 	};
 
-	handleSwatchButtonClick = () => {
+	const handleSwatchButtonClick = () => {
 		const workingColor = ColorUtils.getNewColor(
 			{
 				// eslint-disable-next-line react/no-access-state-in-setstate
-				hex: this.state.workingColor.hex,
+				hex: workingColorState.hex,
 			},
-			this.props.events.onValidateWorkingColor
+			props.events.onValidateWorkingColor
 		);
-		this.setState({
-			// eslint-disable-next-line react/no-access-state-in-setstate
-			isOpen: !this.state.isOpen,
-			workingColor,
-			// eslint-disable-next-line react/no-access-state-in-setstate
-			previousWorkingColor: this.state.previousWorkingColor,
-		});
-		if (this.props.onRequestOpen) {
-			this.props.onRequestOpen();
+		setIsOpen(!isOpen);
+		setWorkingColorState(workingColor);
+		setPreviousWorkingColor(previousWorkingColor);
+		if (props.onRequestOpen) {
+			props.onRequestOpen();
 		}
 	};
 
-	handleSwatchSelect = (event, { hex }) => {
-		this.setWorkingColor(event, {
+	const handleSwatchSelect = (event, { hex }) => {
+		setWorkingColor(event, {
 			hex,
 		});
 	};
 
-	render() {
-		const labels = assign({}, defaultProps.labels, this.props.labels);
+	const labels = assign({}, defaultProps.labels, props.labels);
 
-		return (
-			<div
-				className={classNames('slds-color-picker', this.props.className)}
-				ref={(node) => {
-					this.wrapper = node;
-				}}
-			>
-				<div className="slds-color-picker__summary">
-					<label
-						className={classNames(
-							'slds-color-picker__summary-label',
-							this.props.assistiveText.label ? 'slds-assistive-text' : ''
-						)}
-						htmlFor={
-							!this.props.hideInput
-								? `color-picker-summary-input-${this.generatedId}`
-								: undefined
-						}
-						id={`color-picker-label-${this.generatedId}`}
-					>
-						{this.props.assistiveText.label
-							? this.props.assistiveText.label
-							: labels.label}
-					</label>
-					{this.getPopover({ labels })}
-					{this.getInput({ labels })}
-					{!this.state.isOpen && this.state.colorErrorMessage ? (
-						<p
-							className="slds-form-error"
-							id={`color-picker-summary-error-${this.generatedId}`}
-						>
-							{this.state.colorErrorMessage}
-						</p>
-					) : (
-						''
+	const wrapper = useRef();
+	return (
+		<div
+			className={classNames('slds-color-picker', props.className)}
+			ref={wrapper}
+		>
+			<div className="slds-color-picker__summary">
+				<label
+					className={classNames(
+						'slds-color-picker__summary-label',
+						props.assistiveText.label ? 'slds-assistive-text' : ''
 					)}
-				</div>
+					htmlFor={
+						!props.hideInput
+							? `color-picker-summary-input-${generatedId}`
+							: undefined
+					}
+					id={`color-picker-label-${generatedId}`}
+				>
+					{props.assistiveText.label ? props.assistiveText.label : labels.label}
+				</label>
+				{getPopover({ labels })}
+				{getInput({ labels })}
+				{!isOpen && colorErrorMessage ? (
+					<p
+						className="slds-form-error"
+						id={`color-picker-summary-error-${generatedId}`}
+					>
+						{colorErrorMessage}
+					</p>
+				) : (
+					''
+				)}
 			</div>
-		);
-	}
-}
+		</div>
+	);
+};
+
+ColorPicker.propTypes = propTypes;
+ColorPicker.defaultProps = defaultProps;
+ColorPicker.displayName = COLOR_PICKER;
 
 export default ColorPicker;
