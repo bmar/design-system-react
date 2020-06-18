@@ -93,6 +93,7 @@
 		"react-onclickoutside": "^6.9.0",
 		"react-required-if": "^1.0.3",
 		"react-text-truncate": "^0.14.1",
+		"resize-observer-polyfill": "^1.5.1",
 		"shortid": "^2.2.14",
 		"warning": "^4.0.3",
 		"webpack-cli": "^3.x"

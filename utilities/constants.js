@@ -37,6 +37,7 @@ export const CARD_FILTER = 'SLDSCardFilter';
 export const CARD_FOOTER = 'SLDSCardFooter';
 export const CARD_HEADER = 'SLDSCardHeader';
 export const CAROUSEL = 'SLDSCarousel';
+export const CAROUSEL_FUNC = 'SLDSCarouselFunc';
 export const CAROUSEL_INDICATORS = 'SLDSCarouselIndicators';
 export const CAROUSEL_ITEM = 'SLDSCarouselItem';
 export const CAROUSEL_NAVIGATORS = 'SLDSCarouselNavigators';
