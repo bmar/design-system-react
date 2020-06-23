@@ -91,16 +91,14 @@ const propTypes = {
 /**
  * A set of delightful animated icons.
  */
-class DynamicIcon extends React.Component {
-	getIconChildren() {
+const DynamicIcon = (props) => {
+	const getIconChildren = () => {
 		let children = [];
-		let defaultAssistiveText = this.props.title
-			? this.props.title
-			: `${this.props.variant
-					.charAt(0)
-					.toUpperCase()}${this.props.variant.slice(1)}`;
+		let defaultAssistiveText = props.title
+			? props.title
+			: `${props.variant.charAt(0).toUpperCase()}${props.variant.slice(1)}`;
 
-		if (this.props.variant === 'ellie') {
+		if (props.variant === 'ellie') {
 			children = [
 				<svg viewBox="0 0 280 14" aria-hidden="true">
 					<circle cx="7" cy="7" r="4" />
@@ -145,13 +143,13 @@ class DynamicIcon extends React.Component {
 					<circle cx="273" cy="7" r="3" />
 				</svg>,
 			];
-		} else if (this.props.variant === 'eq') {
+		} else if (props.variant === 'eq') {
 			children = [
 				<div className="slds-icon-eq__bar" />,
 				<div className="slds-icon-eq__bar" />,
 				<div className="slds-icon-eq__bar" />,
 			];
-		} else if (this.props.variant === 'score') {
+		} else if (props.variant === 'score') {
 			children = [
 				<svg
 					viewBox="0 0 5 5"
@@ -168,7 +166,7 @@ class DynamicIcon extends React.Component {
 					<circle cx="50%" cy="50%" r="1.875" />
 				</svg>,
 			];
-		} else if (this.props.variant === 'strength') {
+		} else if (props.variant === 'strength') {
 			children = [
 				<svg viewBox="0 0 27 7" aria-hidden="true">
 					<circle r="3.025" cx="3.5" cy="3.5" />
@@ -176,7 +174,7 @@ class DynamicIcon extends React.Component {
 					<circle r="3.025" cx="23.5" cy="3.5" />
 				</svg>,
 			];
-		} else if (this.props.variant === 'trend') {
+		} else if (props.variant === 'trend') {
 			children = [
 				<svg viewBox="0 0 16 16" aria-hidden="true">
 					<path
@@ -192,16 +190,16 @@ class DynamicIcon extends React.Component {
 					/>
 				</svg>,
 			];
-		} else if (this.props.variant === 'typing') {
+		} else if (props.variant === 'typing') {
 			children = [
 				<span className="slds-icon-typing__dot" />,
 				<span className="slds-icon-typing__dot" />,
 				<span className="slds-icon-typing__dot" />,
 			];
-			if (!this.props.title) {
+			if (!props.title) {
 				defaultAssistiveText = 'User is typing';
 			}
-		} else if (this.props.variant === 'waffle') {
+		} else if (props.variant === 'waffle') {
 			children = [
 				<span className="slds-icon-waffle">
 					<span className="slds-r1" />
@@ -215,7 +213,7 @@ class DynamicIcon extends React.Component {
 					<span className="slds-r9" />
 				</span>,
 			];
-			if (!this.props.title) {
+			if (!props.title) {
 				defaultAssistiveText = 'Open App Launcher';
 			}
 		}
@@ -223,59 +221,55 @@ class DynamicIcon extends React.Component {
 		// eslint-disable-next-line fp/no-mutating-methods
 		children.push(
 			<span className="slds-assistive-text">
-				{this.props.assistiveText && this.props.assistiveText.label
-					? this.props.assistiveText.label
+				{props.assistiveText && props.assistiveText.label
+					? props.assistiveText.label
 					: defaultAssistiveText}
 			</span>
 		);
 
 		return children;
-	}
+	};
 
-	render() {
-		const children = this.getIconChildren();
-		const classes = [
-			{
-				'slds-is-animated': !this.props.isStatic,
-				'slds-is-paused': this.props.isPaused,
-			},
-		];
-		const iconProps = {
-			title: this.props.title,
-		};
-		let element = 'span';
+	const childrenRender = getIconChildren();
+	const classes = [
+		{
+			'slds-is-animated': !props.isStatic,
+			'slds-is-paused': props.isPaused,
+		},
+	];
+	const iconProps = {
+		title: props.title,
+	};
+	let element = 'span';
 
-		if (this.props.variant === 'waffle') {
-			// eslint-disable-next-line fp/no-mutating-methods
-			classes.unshift('slds-button', 'slds-icon-waffle_container');
-			element = 'button';
-		} else {
-			// eslint-disable-next-line fp/no-mutating-methods
-			classes.unshift(`slds-icon-${this.props.variant}`);
+	if (props.variant === 'waffle') {
+		// eslint-disable-next-line fp/no-mutating-methods
+		classes.unshift('slds-button', 'slds-icon-waffle_container');
+		element = 'button';
+	} else {
+		// eslint-disable-next-line fp/no-mutating-methods
+		classes.unshift(`slds-icon-${props.variant}`);
 
-			if (this.props.variant === 'eq') {
-				element = 'div';
-			} else if (this.props.variant === 'score') {
-				iconProps['data-slds-state'] = this.props.scorePolarity
-					? this.props.scorePolarity
-					: 'positive';
-			} else if (this.props.variant === 'strength') {
-				iconProps['data-slds-strength'] =
-					this.props.strengthLevel !== undefined
-						? `${this.props.strengthLevel}`
-						: '0';
-			} else if (this.props.variant === 'trend') {
-				iconProps['data-slds-trend'] = this.props.trendDirection
-					? this.props.trendDirection
-					: 'neutral';
-			}
+		if (props.variant === 'eq') {
+			element = 'div';
+		} else if (props.variant === 'score') {
+			iconProps['data-slds-state'] = props.scorePolarity
+				? props.scorePolarity
+				: 'positive';
+		} else if (props.variant === 'strength') {
+			iconProps['data-slds-strength'] =
+				props.strengthLevel !== undefined ? `${props.strengthLevel}` : '0';
+		} else if (props.variant === 'trend') {
+			iconProps['data-slds-trend'] = props.trendDirection
+				? props.trendDirection
+				: 'neutral';
 		}
-
-		iconProps.className = classNames(classes, this.props.className);
-
-		return React.createElement(element, iconProps, ...children);
 	}
-}
+
+	iconProps.className = classNames(classes, props.className);
+
+	return React.createElement(element, iconProps, ...childrenRender);
+};
 
 DynamicIcon.displayName = DYNAMIC_ICON;
 DynamicIcon.propTypes = propTypes;
