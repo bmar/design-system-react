@@ -5,7 +5,7 @@
 
 // Implements the [Expandable Section design pattern](https://www.lightningdesignsystem.com/components/expandable-section/) in React.
 
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import classNames from 'classnames';
@@ -71,93 +71,83 @@ const defaultProps = {
 /**
  * Toggle visibility of section content with the Expandable Section
  */
-class ExpandableSection extends React.Component {
-	constructor(props) {
-		super(props);
-		this.generatedId = shortid.generate();
-		this.state = {
-			isOpen: true,
-		};
-	}
+const ExpandableSection = (props) => {
+	const generatedId = shortid.generate();
+	const [isOpenState, setIsOpenState] = useState(true);
 
-	getId = () => this.props.id || this.generatedId;
+	const getId = () => props.id || generatedId;
 
-	toggleOpen = (event) => {
-		if (this.props.onToggleOpen) {
-			this.props.onToggleOpen(event, {
-				isOpen: this.props.isOpen,
+	const toggleOpen = (event) => {
+		if (props.onToggleOpen) {
+			props.onToggleOpen(event, {
+				isOpen: props.isOpen,
 			});
 		} else {
-			this.setState((prevState) => ({
-				isOpen: !prevState.isOpen,
-			}));
+			setIsOpenState(!isOpenState);
 		}
 	};
 
-	render() {
-		const contentId = `${this.getId()}-expanded-section-content`;
-		const isOpen =
-			this.props.isOpen !== undefined ? this.props.isOpen : this.state.isOpen;
-		const buttonAriaProps = {
-			'aria-controls': contentId,
-			'aria-expanded': !!isOpen,
-		};
-		const titleNode = (
-			<span
-				className={classNames('slds-truncate', {
-					'slds-p-horizontal_small': !!this.props.nonCollapsible,
-				})}
-				title={this.props.title}
-			>
-				{this.props.title}
-			</span>
-		);
+	const contentId = `${getId()}-expanded-section-content`;
+	const isOpen = props.isOpen !== undefined ? props.isOpen : isOpenState;
+	const buttonAriaProps = {
+		'aria-controls': contentId,
+		'aria-expanded': !!isOpen,
+	};
+	const titleNode = (
+		<span
+			className={classNames('slds-truncate', {
+				'slds-p-horizontal_small': !!props.nonCollapsible,
+			})}
+			title={props.title}
+		>
+			{props.title}
+		</span>
+	);
 
-		return (
-			<div
-				className={classNames(
-					'slds-section',
-					{
-						'slds-is-open': isOpen,
-					},
-					this.props.className
-				)}
+	return (
+		<div
+			className={classNames(
+				'slds-section',
+				{
+					'slds-is-open': isOpen,
+				},
+				props.className
+			)}
+		>
+			<h3
+				className={classNames('slds-section__title', {
+					'slds-theme_shade': !!props.nonCollapsible,
+				})}
 			>
-				<h3
-					className={classNames('slds-section__title', {
-						'slds-theme_shade': !!this.props.nonCollapsible,
-					})}
-				>
-					{!this.props.nonCollapsible ? (
-						<Button
-							assistiveText={{
-								icon: this.props.assistiveText.toggleSection,
-							}}
-							iconCategory="utility"
-							iconClassName="slds-section__title-action-icon slds-button__icon_left"
-							iconName="switch"
-							onClick={this.toggleOpen}
-							className="slds-section__title-action"
-							variant="base"
-							{...buttonAriaProps}
-						>
-							{titleNode}
-						</Button>
-					) : (
-						titleNode
-					)}
-				</h3>
-				<div
-					aria-hidden={!isOpen}
-					className="slds-section__content"
-					id={contentId}
-				>
-					{this.props.children}
-				</div>
+				{!props.nonCollapsible ? (
+					<Button
+						assistiveText={{
+							icon: props.assistiveText.toggleSection,
+						}}
+						iconCategory="utility"
+						iconClassName="slds-section__title-action-icon slds-button__icon_left"
+						iconName="switch"
+						onClick={toggleOpen}
+						className="slds-section__title-action"
+						variant="base"
+						{...buttonAriaProps}
+					>
+						{titleNode}
+					</Button>
+				) : (
+					titleNode
+				)}
+			</h3>
+			<div
+				aria-hidden={!isOpen}
+				className="slds-section__content"
+				id={contentId}
+			>
+				{props.children}
 			</div>
-		);
-	}
-}
+		</div>
+	);
+};
 
 ExpandableSection.displayName = EXPANDABLE_SECTION;
 ExpandableSection.propTypes = propTypes;
