@@ -1,175 +1,172 @@
-import React from 'react';
+import React, { useState } from 'react';
 // `~` is replaced with design-system-react at runtime
 import IconSettings from '~/components/icon-settings';
 import Checkbox from '~/components/checkbox';
 
-class Example extends React.Component {
-	static displayName = 'CheckboxExample';
+const displayName = 'CheckboxExample';
 
-	constructor(props) {
-		super(props);
-		this.state = {
-			mayonnaiseChecked: true,
-			mustardChecked: false,
-			oilChecked: true,
-			vinegarChecked: false,
-		};
-		this.previousMixedState = { ...this.state };
-	}
+const Example = (props) => {
+	const [state, setState] = useState({
+		mayonnaiseChecked: true,
+		mustardChecked: false,
+		oilChecked: true,
+		vinegarChecked: false,
+	});
+	let previousMixedState = { ...state };
 
-	getAllCondimentsStatus() {
+	const getAllCondimentsStatus = () => {
 		let status = 'mixed';
 
 		if (
-			this.state.mayonnaiseChecked &&
-			this.state.mustardChecked &&
-			this.state.oilChecked &&
-			this.state.vinegarChecked
+			state.mayonnaiseChecked &&
+			state.mustardChecked &&
+			state.oilChecked &&
+			state.vinegarChecked
 		) {
 			status = true;
 		} else if (
-			!this.state.mayonnaiseChecked &&
-			!this.state.mustardChecked &&
-			!this.state.oilChecked &&
-			!this.state.vinegarChecked
+			!state.mayonnaiseChecked &&
+			!state.mustardChecked &&
+			!state.oilChecked &&
+			!state.vinegarChecked
 		) {
 			status = false;
 		}
 
 		return status;
-	}
+	};
 
-	handleSubCheckboxChange(attribute) {
-		const newState = { ...this.state };
-		newState[attribute] = !this.state[attribute];
-		this.previousMixedState = { ...newState };
-		this.setState(newState);
-	}
+	const handleSubCheckboxChange = (attribute) => {
+		const newState = { ...state };
+		newState[attribute] = !state[attribute];
+		previousMixedState = { ...newState };
+		setState(newState);
+	};
 
-	render() {
-		const allCondimentsStatus = this.getAllCondimentsStatus();
+	const allCondimentsStatus = getAllCondimentsStatus();
 
-		return (
-			<IconSettings iconPath="/assets/icons">
-				<fieldset>
-					<legend className="slds-p-bottom_xx-small">
-						Grouped with Tristate
-					</legend>
-					<Checkbox
-						aria-checked={allCondimentsStatus}
-						aria-controls="checkbox-mayonnaise checkbox-mustard checkbox-oil checkbox-vinegar"
-						assistiveText={{
-							label: 'All Condiments',
-						}}
-						checked={allCondimentsStatus === true || undefined}
-						id="checkbox-example-all-condiments"
-						indeterminate={allCondimentsStatus === 'mixed'}
-						labels={{
-							label: 'All Condiments',
-						}}
-						onChange={() => {
-							const condimentsStatus = this.getAllCondimentsStatus();
+	return (
+		<IconSettings iconPath="/assets/icons">
+			<fieldset>
+				<legend className="slds-p-bottom_xx-small">
+					Grouped with Tristate
+				</legend>
+				<Checkbox
+					aria-checked={allCondimentsStatus}
+					aria-controls="checkbox-mayonnaise checkbox-mustard checkbox-oil checkbox-vinegar"
+					assistiveText={{
+						label: 'All Condiments',
+					}}
+					checked={allCondimentsStatus === true || undefined}
+					id="checkbox-example-all-condiments"
+					indeterminate={allCondimentsStatus === 'mixed'}
+					labels={{
+						label: 'All Condiments',
+					}}
+					onChange={() => {
+						const condimentsStatus = getAllCondimentsStatus();
 
-							if (condimentsStatus === false) {
-								if (
-									!this.previousMixedState.mayonnaiseChecked &&
-									!this.previousMixedState.mustardChecked &&
-									!this.previousMixedState.oilChecked &&
-									!this.previousMixedState.vinegarChecked
-								) {
-									this.setState({
-										mayonnaiseChecked: true,
-										mustardChecked: true,
-										oilChecked: true,
-										vinegarChecked: true,
-									});
-								} else {
-									this.setState({ ...this.previousMixedState });
-								}
-							} else if (condimentsStatus === 'mixed') {
-								this.previousMixedState = { ...this.state };
-								this.setState({
+						if (condimentsStatus === false) {
+							if (
+								!previousMixedState.mayonnaiseChecked &&
+								!previousMixedState.mustardChecked &&
+								!previousMixedState.oilChecked &&
+								!previousMixedState.vinegarChecked
+							) {
+								setState({
 									mayonnaiseChecked: true,
 									mustardChecked: true,
 									oilChecked: true,
 									vinegarChecked: true,
 								});
 							} else {
-								this.setState({
-									mayonnaiseChecked: false,
-									mustardChecked: false,
-									oilChecked: false,
-									vinegarChecked: false,
-								});
+								setState({ ...previousMixedState });
 							}
-						}}
-					/>
-					<ul className="slds-p-left_large slds-p-top_xx-small">
-						<li>
-							<Checkbox
-								assistiveText={{
-									label: 'Mayonnaise',
-								}}
-								checked={this.state.mayonnaiseChecked}
-								id="checkbox-mayonnaise"
-								labels={{
-									label: 'Mayonnaise',
-								}}
-								onChange={() => {
-									this.handleSubCheckboxChange('mayonnaiseChecked');
-								}}
-							/>
-						</li>
-						<li>
-							<Checkbox
-								assistiveText={{
-									label: 'Mustard',
-								}}
-								checked={this.state.mustardChecked}
-								id="checkbox-mustard"
-								labels={{
-									label: 'Mustard',
-								}}
-								onChange={() => {
-									this.handleSubCheckboxChange('mustardChecked');
-								}}
-							/>
-						</li>
-						<li>
-							<Checkbox
-								assistiveText={{
-									label: 'Oil',
-								}}
-								checked={this.state.oilChecked}
-								id="checkbox-oil"
-								labels={{
-									label: 'Oil',
-								}}
-								onChange={() => {
-									this.handleSubCheckboxChange('oilChecked');
-								}}
-							/>
-						</li>
-						<li>
-							<Checkbox
-								assistiveText={{
-									label: 'Vinegar',
-								}}
-								checked={this.state.vinegarChecked}
-								id="checkbox-vinegar"
-								labels={{
-									label: 'Vinegar',
-								}}
-								onChange={() => {
-									this.handleSubCheckboxChange('vinegarChecked');
-								}}
-							/>
-						</li>
-					</ul>
-				</fieldset>
-			</IconSettings>
-		);
-	}
-}
+						} else if (condimentsStatus === 'mixed') {
+							previousMixedState = { ...state };
+							setState({
+								mayonnaiseChecked: true,
+								mustardChecked: true,
+								oilChecked: true,
+								vinegarChecked: true,
+							});
+						} else {
+							setState({
+								mayonnaiseChecked: false,
+								mustardChecked: false,
+								oilChecked: false,
+								vinegarChecked: false,
+							});
+						}
+					}}
+				/>
+				<ul className="slds-p-left_large slds-p-top_xx-small">
+					<li>
+						<Checkbox
+							assistiveText={{
+								label: 'Mayonnaise',
+							}}
+							checked={state.mayonnaiseChecked}
+							id="checkbox-mayonnaise"
+							labels={{
+								label: 'Mayonnaise',
+							}}
+							onChange={() => {
+								handleSubCheckboxChange('mayonnaiseChecked');
+							}}
+						/>
+					</li>
+					<li>
+						<Checkbox
+							assistiveText={{
+								label: 'Mustard',
+							}}
+							checked={state.mustardChecked}
+							id="checkbox-mustard"
+							labels={{
+								label: 'Mustard',
+							}}
+							onChange={() => {
+								handleSubCheckboxChange('mustardChecked');
+							}}
+						/>
+					</li>
+					<li>
+						<Checkbox
+							assistiveText={{
+								label: 'Oil',
+							}}
+							checked={state.oilChecked}
+							id="checkbox-oil"
+							labels={{
+								label: 'Oil',
+							}}
+							onChange={() => {
+								handleSubCheckboxChange('oilChecked');
+							}}
+						/>
+					</li>
+					<li>
+						<Checkbox
+							assistiveText={{
+								label: 'Vinegar',
+							}}
+							checked={state.vinegarChecked}
+							id="checkbox-vinegar"
+							labels={{
+								label: 'Vinegar',
+							}}
+							onChange={() => {
+								handleSubCheckboxChange('vinegarChecked');
+							}}
+						/>
+					</li>
+				</ul>
+			</fieldset>
+		</IconSettings>
+	);
+};
+
+Example.displayName = displayName;
 
 export default Example; // export is replaced with `ReactDOM.render(<Example />, mountNode);` at runtime

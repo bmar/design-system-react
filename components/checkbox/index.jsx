@@ -5,7 +5,12 @@
 
 // Implements the [Checkbox design pattern](https://www.lightningdesignsystem.com/components/forms/#checkbox) in React.
 
-import React from 'react';
+import React, {
+	useCallback,
+	useRef,
+	useImperativeHandle,
+	forwardRef,
+} from 'react';
 import PropTypes from 'prop-types';
 
 import classNames from 'classnames';
@@ -193,31 +198,27 @@ const defaultProps = {
 /**
  * The ability to style checkboxes with CSS varies across browsers. Using this component ensures checkboxes look the same everywhere.
  */
-class Checkbox extends React.Component {
-	constructor(props) {
-		super(props);
+const Checkbox = (props) => {
+	checkProps(CHECKBOX, props, componentDoc);
+	const generatedId = shortid.generate();
 
-		checkProps(CHECKBOX, this.props, componentDoc);
-		this.generatedId = shortid.generate();
-	}
+	const getId = () => props.id || generatedId;
 
-	getId = () => this.props.id || this.generatedId;
+	const getErrorId = () =>
+		props.errorText ? `${getId()}-error-text` : undefined;
 
-	getErrorId = () =>
-		this.props.errorText ? `${this.getId()}-error-text` : undefined;
-
-	getAriaDescribedBy = ({ idArray = [] } = {}) =>
+	const getAriaDescribedBy = ({ idArray = [] } = {}) =>
 		idArray
-			.concat(this.props['aria-describedby'], this.getErrorId())
+			.concat(props['aria-describedby'], getErrorId())
 			.filter(Boolean)
 			.join(' ') || undefined;
 
-	handleChange = (event) => {
-		const { checked, indeterminate, onChange } = this.props;
+	const handleChange = (event) => {
+		const { checked, indeterminate, onChange } = props;
 
 		if (typeof onChange === 'function') {
 			// `target.checked` is present twice to maintain backwards compatibility. Please remove first parameter `value` on the next breaking change or when `forms/checkbox` is removed.
-			if (this.props.oldEventParameterOrder) {
+			if (props.oldEventParameterOrder) {
 				onChange(event.target.checked, event, {
 					checked: indeterminate ? true : !checked,
 					indeterminate: false,
@@ -232,16 +233,24 @@ class Checkbox extends React.Component {
 		}
 	};
 
-	handleKeyDown = (event) => {
+	const handleKeyDown = (event) => {
 		if (event.keyCode) {
 			if (event.keyCode === KEYS.ENTER || event.keyCode === KEYS.SPACE) {
 				EventUtil.trapImmediate(event);
-				this.handleChange(event);
+				handleChange(event);
 			}
 		}
 	};
 
-	renderButtonGroupVariant = (props, ariaProps, assistiveText, labels) => (
+	const group = useRef((component) => {
+		input = component;
+	});
+	const renderButtonGroupVariant = (
+		props,
+		ariaProps,
+		assistiveText,
+		labels
+	) => (
 		<span className="slds-button slds-checkbox_button">
 			<input
 				disabled={props.disabled}
@@ -249,24 +258,22 @@ class Checkbox extends React.Component {
 				{...(props.checked !== undefined
 					? { checked: props.checked }
 					: { defaultChecked: props.defaultChecked })}
-				id={this.getId()}
+				id={getId()}
 				name={props.name}
 				onBlur={props.onBlur}
-				onChange={this.handleChange}
+				onChange={handleChange}
 				onFocus={props.onFocus}
 				onKeyDown={props.onKeyDown}
 				onKeyPress={props.onKeyPress}
 				onKeyUp={props.onKeyUp}
-				ref={(component) => {
-					this.input = component;
-				}}
+				ref={group}
 				role={props.role}
 				required={props.required}
 				type="checkbox"
 				{...ariaProps}
-				aria-describedby={this.getAriaDescribedBy()}
+				aria-describedby={getAriaDescribedBy()}
 			/>
-			<label className="slds-checkbox_button__label" htmlFor={this.getId()}>
+			<label className="slds-checkbox_button__label" htmlFor={getId()}>
 				<span className="slds-checkbox_faux">{labels.label}</span>
 				{assistiveText.label ? (
 					<span className="slds-assistive-text">{assistiveText.label}</span>
@@ -275,75 +282,82 @@ class Checkbox extends React.Component {
 		</span>
 	);
 
-	renderBaseVariant = (props, ariaProps, assistiveText, labels) => (
-		<div
-			className={classNames(
-				'slds-form-element',
-				{
-					'is-required': props.required,
-					'slds-has-error': props.errorText,
-				},
-				props.className
-			)}
-		>
-			<div className="slds-form-element__control">
-				<span className="slds-checkbox">
-					{props.required ? (
-						<abbr className="slds-required" title="required">
-							{'*'}
-						</abbr>
-					) : null}
-					<input
-						disabled={props.disabled}
-						/* A form element should not have both checked and defaultChecked props. */
-						{...(props.checked !== undefined
-							? { checked: props.checked }
-							: { defaultChecked: props.defaultChecked })}
-						id={this.getId()}
-						name={props.name}
-						onBlur={props.onBlur}
-						onChange={this.handleChange}
-						onFocus={props.onFocus}
-						onKeyDown={props.onKeyDown}
-						onKeyPress={props.onKeyPress}
-						onKeyUp={props.onKeyUp}
-						ref={(component) => {
-							if (component) {
-								// eslint-disable-next-line no-param-reassign
-								component.indeterminate = props.indeterminate;
-							}
-							this.input = component;
-						}}
-						role={props.role}
-						required={props.required}
-						type="checkbox"
-						{...ariaProps}
-						aria-describedby={this.getAriaDescribedBy()}
-					/>
-					<label
-						className="slds-checkbox__label"
-						htmlFor={this.getId()}
-						id={props.labelId}
-					>
-						<span className="slds-checkbox_faux" />
-						{labels.label ? (
-							<span className="slds-form-element__label">{labels.label}</span>
+	const basevar = useCallback((component) => {
+		if (component) {
+			// eslint-disable-next-line no-param-reassign
+			component.indeterminate = props.indeterminate;
+		}
+	});
+	function renderBaseVariant(props, ariaProps, assistiveText, labels, ref) {
+		return (
+			<div
+				className={classNames(
+					'slds-form-element',
+					{
+						'is-required': props.required,
+						'slds-has-error': props.errorText,
+					},
+					props.className
+				)}
+			>
+				<div className="slds-form-element__control">
+					<span className="slds-checkbox">
+						{props.required ? (
+							<abbr className="slds-required" title="required">
+								{'*'}
+							</abbr>
 						) : null}
-						{assistiveText.label ? (
-							<span className="slds-assistive-text">{assistiveText.label}</span>
-						) : null}
-					</label>
-				</span>
-			</div>
-			{props.errorText ? (
-				<div className="slds-form-element__help" id={this.getErrorId()}>
-					{props.errorText}
+						<input
+							disabled={props.disabled}
+							/* A form element should not have both checked and defaultChecked props. */
+							{...(props.checked !== undefined
+								? { checked: props.checked }
+								: { defaultChecked: props.defaultChecked })}
+							id={getId()}
+							name={props.name}
+							onBlur={props.onBlur}
+							onChange={handleChange}
+							onFocus={props.onFocus}
+							onKeyDown={props.onKeyDown}
+							onKeyPress={props.onKeyPress}
+							onKeyUp={props.onKeyUp}
+							ref={basevar}
+							role={props.role}
+							required={props.required}
+							type="checkbox"
+							{...ariaProps}
+							aria-describedby={getAriaDescribedBy()}
+						/>
+						<label
+							className="slds-checkbox__label"
+							htmlFor={getId()}
+							id={props.labelId}
+						>
+							<span className="slds-checkbox_faux" />
+							{labels.label ? (
+								<span className="slds-form-element__label">{labels.label}</span>
+							) : null}
+							{assistiveText.label ? (
+								<span className="slds-assistive-text">
+									{assistiveText.label}
+								</span>
+							) : null}
+						</label>
+					</span>
 				</div>
-			) : null}
-		</div>
-	);
+				{props.errorText ? (
+					<div className="slds-form-element__help" id={getErrorId()}>
+						{props.errorText}
+					</div>
+				) : null}
+			</div>
+		);
+	}
 
-	renderToggleVariant = (props, ariaProps, assistiveText, labels) => (
+	const toggle = useRef((component) => {
+		input = component;
+	});
+	const renderToggleVariant = (props, ariaProps, assistiveText, labels) => (
 		<div
 			className={classNames(
 				'slds-form-element',
@@ -354,7 +368,7 @@ class Checkbox extends React.Component {
 				props.className
 			)}
 		>
-			<label className="slds-checkbox_toggle slds-grid" htmlFor={this.getId()}>
+			<label className="slds-checkbox_toggle slds-grid" htmlFor={getId()}>
 				{props.required ? (
 					<abbr className="slds-required" title="required">
 						{'*'}
@@ -370,31 +384,29 @@ class Checkbox extends React.Component {
 				) : null}
 				<input
 					disabled={props.disabled}
-					id={this.getId()}
+					id={getId()}
 					/* A form element should not have both checked and defaultChecked props. */
 					{...(props.checked !== undefined
 						? { checked: props.checked }
 						: { defaultChecked: props.defaultChecked })}
 					name={props.name}
 					onBlur={props.onBlur}
-					onChange={this.handleChange}
+					onChange={handleChange}
 					onFocus={props.onFocus}
 					onKeyDown={props.onKeyDown}
 					onKeyPress={props.onKeyPress}
 					onKeyUp={props.onKeyUp}
-					ref={(component) => {
-						this.input = component;
-					}}
+					ref={toggle}
 					role={props.role}
 					required={props.required}
 					type="checkbox"
 					{...ariaProps}
-					aria-describedby={this.getAriaDescribedBy({
-						idArray: [`${this.getId()}-desc`],
+					aria-describedby={getAriaDescribedBy({
+						idArray: [`${getId()}-desc`],
 					})}
 				/>
 				<span
-					id={`${this.getId()}-desc`}
+					id={`${getId()}-desc`}
 					className="slds-checkbox_faux_container"
 					aria-live="assertive"
 				>
@@ -404,19 +416,22 @@ class Checkbox extends React.Component {
 				</span>
 			</label>
 			{props.errorText ? (
-				<div className="slds-form-element__help" id={this.getErrorId()}>
+				<div className="slds-form-element__help" id={getErrorId()}>
 					{props.errorText}
 				</div>
 			) : null}
 		</div>
 	);
 
-	renderVisualPickerVariant = (props, ariaProps, assistiveText) => (
+	const picker = useRef((component) => {
+		input = component;
+	});
+	const renderVisualPickerVariant = (props, ariaProps, assistiveText) => (
 		<span
 			className={classNames(
 				'slds-visual-picker',
-				`slds-visual-picker_${this.props.size}`,
-				this.props.vertical ? 'slds-visual-picker_vertical' : null
+				`slds-visual-picker_${props.size}`,
+				props.vertical ? 'slds-visual-picker_vertical' : null
 			)}
 		>
 			<input
@@ -425,46 +440,44 @@ class Checkbox extends React.Component {
 				{...(props.checked !== undefined
 					? { checked: props.checked }
 					: { defaultChecked: props.defaultChecked })}
-				id={this.getId()}
+				id={getId()}
 				name={props.name}
 				onBlur={props.onBlur}
-				onChange={this.handleChange}
+				onChange={handleChange}
 				onFocus={props.onFocus}
 				onKeyDown={props.onKeyDown}
 				onKeyPress={props.onKeyPress}
 				onKeyUp={props.onKeyUp}
-				ref={(component) => {
-					this.input = component;
-				}}
+				ref={picker}
 				role={props.role}
 				required={props.required}
 				type="checkbox"
 				{...ariaProps}
-				aria-describedby={this.getAriaDescribedBy()}
+				aria-describedby={getAriaDescribedBy()}
 			/>
-			<label className="slds-checkbox_button__label" htmlFor={this.getId()}>
-				{this.props.coverable ? (
+			<label className="slds-checkbox_button__label" htmlFor={getId()}>
+				{props.coverable ? (
 					<div className="slds-visual-picker__figure slds-visual-picker__icon slds-align_absolute-center">
 						<span className="slds-is-selected">
-							{this.props.onRenderVisualPickerSelected()}
+							{props.onRenderVisualPickerSelected()}
 						</span>
 						<span className="slds-is-not-selected">
-							{this.props.onRenderVisualPickerNotSelected()}
+							{props.onRenderVisualPickerNotSelected()}
 						</span>
 					</div>
 				) : (
 					<span className="slds-visual-picker__figure slds-visual-picker__text slds-align_absolute-center">
-						{this.props.onRenderVisualPicker()}
+						{props.onRenderVisualPicker()}
 					</span>
 				)}
-				{!this.props.vertical ? (
+				{!props.vertical ? (
 					<span className="slds-visual-picker__body">
-						{this.props.labels.heading ? (
+						{props.labels.heading ? (
 							<span className="slds-text-heading_small">
-								{this.props.labels.heading}
+								{props.labels.heading}
 							</span>
 						) : null}
-						<span className="slds-text-title">{this.props.labels.label}</span>
+						<span className="slds-text-title">{props.labels.label}</span>
 						{assistiveText.label || assistiveText.heading ? (
 							<span className="slds-assistive-text">
 								{assistiveText.label || assistiveText.heading}
@@ -472,10 +485,10 @@ class Checkbox extends React.Component {
 						) : null}
 					</span>
 				) : null}
-				{!this.props.coverable ? (
+				{!props.coverable ? (
 					<span className="slds-icon_container slds-visual-picker__text-check">
 						<Icon
-							assistiveText={this.props.assistiveText}
+							assistiveText={props.assistiveText}
 							category="utility"
 							name="check"
 							colorVariant="base"
@@ -487,48 +500,39 @@ class Checkbox extends React.Component {
 		</span>
 	);
 
-	render() {
-		const ariaProps = getAriaProps(this.props);
+	const ariaProps = getAriaProps(props);
 
-		if (this.props.variant === 'toggle') {
-			ariaProps['aria-describedby'] = `${this.getId()}-desc`;
-		}
-
-		const assistiveText = {
-			...defaultProps.assistiveText,
-			/* Remove backward compatibility at next breaking change */
-			...(typeof this.props.assistiveText === 'string'
-				? { label: this.props.assistiveText }
-				: {}),
-			...(typeof this.props.assistiveText === 'object'
-				? this.props.assistiveText
-				: {}),
-		};
-		const labels = {
-			...defaultProps.labels,
-			/* Remove backward compatibility at next breaking change */
-			...(this.props.label ? { label: this.props.label } : {}),
-			...this.props.labels,
-		};
-
-		const subRenders = {
-			base: this.renderBaseVariant,
-			'button-group': this.renderButtonGroupVariant,
-			toggle: this.renderToggleVariant,
-			'visual-picker': this.renderVisualPickerVariant,
-		};
-		const variantExists = subRenders[this.props.variant];
-
-		return variantExists
-			? subRenders[this.props.variant](
-					this.props,
-					ariaProps,
-					assistiveText,
-					labels
-				)
-			: subRenders.base(this.props, ariaProps, assistiveText, labels);
+	if (props.variant === 'toggle') {
+		ariaProps['aria-describedby'] = `${getId()}-desc`;
 	}
-}
+
+	const assistiveText = {
+		...defaultProps.assistiveText,
+		/* Remove backward compatibility at next breaking change */
+		...(typeof props.assistiveText === 'string'
+			? { label: props.assistiveText }
+			: {}),
+		...(typeof props.assistiveText === 'object' ? props.assistiveText : {}),
+	};
+	const labels = {
+		...defaultProps.labels,
+		/* Remove backward compatibility at next breaking change */
+		...(props.label ? { label: props.label } : {}),
+		...props.labels,
+	};
+
+	const subRenders = {
+		base: renderBaseVariant,
+		'button-group': renderButtonGroupVariant,
+		toggle: renderToggleVariant,
+		'visual-picker': renderVisualPickerVariant,
+	};
+	const variantExists = subRenders[props.variant];
+
+	return variantExists
+		? subRenders[props.variant](props, ariaProps, assistiveText, labels)
+		: subRenders.base(props, ariaProps, assistiveText, labels);
+};
 
 Checkbox.displayName = CHECKBOX;
 Checkbox.propTypes = propTypes;

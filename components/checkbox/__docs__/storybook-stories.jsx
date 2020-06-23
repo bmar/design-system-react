@@ -14,18 +14,18 @@ import SnapshotBase from '../__examples__/snapshot-base';
 import SnapshotToggle from '../__examples__/snapshot-toggle';
 import Toggle from '../__examples__/toggle';
 
-class CheckboxIndeterminate extends React.Component {
-	static displayName = `${CHECKBOX}_INDETERMINATE`;
+const displayName = `${CHECKBOX}_INDETERMINATE`;
 
-	state = {
+const CheckboxIndeterminate = (props) => {
+	const [state, setState] = useState({
 		indeterminate: true,
 		checked: true,
 		currentStateHelper: 'Indeterminate',
-	};
+	});
 
-	handleChange = (checked, event, data) => {
+	const handleChange = (checked, event, data) => {
 		const checkedLabel = data.checked ? 'Checked' : 'Unchecked';
-		this.setState({
+		setState({
 			checked: data.checked,
 			currentStateHelper: data.indeterminate ? 'Indeterminate' : checkedLabel,
 			indeterminate: data.indeterminate,
@@ -39,8 +39,8 @@ class CheckboxIndeterminate extends React.Component {
 		);
 	};
 
-	changeToIndeterminate = (event) => {
-		this.setState({
+	const changeToIndeterminate = (event) => {
+		setState({
 			currentStateHelper: 'Indeterminate',
 			checked: true,
 			indeterminate: true,
@@ -51,8 +51,8 @@ class CheckboxIndeterminate extends React.Component {
 		);
 	};
 
-	changeToCheck = (event) => {
-		this.setState({
+	const changeToCheck = (event) => {
+		setState({
 			currentStateHelper: 'Checked',
 			checked: true,
 			indeterminate: false,
@@ -60,8 +60,8 @@ class CheckboxIndeterminate extends React.Component {
 		action('changeToCheck')(event, 'checked: true, indeterminate: false');
 	};
 
-	changeToUnChecked = (event) => {
-		this.setState({
+	const changeToUnChecked = (event) => {
+		setState({
 			currentStateHelper: 'Unchecked',
 			checked: false,
 			indeterminate: false,
@@ -69,50 +69,52 @@ class CheckboxIndeterminate extends React.Component {
 		action('changeToUnChecked')(event, 'checked: false, indeterminate: false');
 	};
 
-	render() {
-		return (
-			<div>
-				<Button onClick={this.changeToIndeterminate} label="Indeterminate" />
-				<Button onClick={this.changeToCheck} label="Check" />
-				<Button onClick={this.changeToUnChecked} label="Uncheck" />
+	return (
+		<div>
+			<Button onClick={changeToIndeterminate} label="Indeterminate" />
+			<Button onClick={changeToCheck} label="Check" />
+			<Button onClick={changeToUnChecked} label="Uncheck" />
+			<p>
+				<strong>Current State:</strong> {state.currentStateHelper}
+			</p>
+			<Checkbox
+				assistiveText={{
+					label: 'Checkbox (indeterminate)',
+				}}
+				id="checkbox-example-standard-indeterminate"
+				labels={{
+					label: 'Checkbox label',
+				}}
+				name="checkbox-example-standard-indeterminate"
+				checked={state.checked}
+				indeterminate={state.indeterminate}
+				onChange={handleChange}
+			/>
+			<div className="slds-box slds-text-longform slds-m-top_large">
 				<p>
-					<strong>Current State:</strong> {this.state.currentStateHelper}
+					This example has an <em>indeterminate</em> checkbox.
 				</p>
-				<Checkbox
-					assistiveText={{
-						label: 'Checkbox (indeterminate)',
-					}}
-					id="checkbox-example-standard-indeterminate"
-					labels={{
-						label: 'Checkbox label',
-					}}
-					name="checkbox-example-standard-indeterminate"
-					checked={this.state.checked}
-					indeterminate={this.state.indeterminate}
-					onChange={this.handleChange}
-				/>
-				<div className="slds-box slds-text-longform slds-m-top_large">
-					<p>
-						This example has an <em>indeterminate</em> checkbox.
-					</p>
-					<p>
-						It is set by providing the <code>indeterminate</code> prop as{' '}
-						<code>
-							<strong>true</strong>
-						</code>.
-					</p>
-					<p>
-						Once it is clicked, there is no way to make it go <em>back</em> to
-						the indeterminate state,{' '}
-						<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:indeterminate#Checkbox_radio_button">
-							it must be done programatically, through JavaScript
-						</a>.
-					</p>
-				</div>
+				<p>
+					It is set by providing the <code>indeterminate</code> prop as{' '}
+					<code>
+						<strong>true</strong>
+					</code>
+					.
+				</p>
+				<p>
+					Once it is clicked, there is no way to make it go <em>back</em> to the
+					indeterminate state,{' '}
+					<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:indeterminate#Checkbox_radio_button">
+						it must be done programatically, through JavaScript
+					</a>
+					.
+				</p>
 			</div>
-		);
-	}
-}
+		</div>
+	);
+};
+
+CheckboxIndeterminate.displayName = displayName;
 
 storiesOf(CHECKBOX, module)
 	.addDecorator((getStory) => (
