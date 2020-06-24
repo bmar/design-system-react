@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import PropTypes from 'prop-types';
 import chai, { expect } from 'chai';
@@ -6,7 +6,7 @@ import chaiEnzyme from 'chai-enzyme';
 import { mount } from 'enzyme';
 
 /* Enzyme Helpers that can mount and unmount React component instances to
- * the DOM and set `this.wrapper` and `this.dom` within Mocha's `this`
+ * the DOM and set `wrapper` and `dom` within Mocha's `this`
  * context [full source here](tests/enzyme-helpers.js). `this` can
  * only be referenced if inside `function () {}`.
  */
@@ -32,30 +32,28 @@ const defaultProps = {
 	heading: <span id="sample-heading">This is the heading</span>,
 };
 
+const displayName = 'PopoverDemoComponent';
+
+const propTypes = {
+	isOpen: PropTypes.bool,
+};
+
+const defaultProps = defaultProps;
+
 /* A re-usable demo component fixture outside of `describe` sections
  * can accept props within each test and be unmounted after each tests.
  * This wrapping component will be similar to your wrapping component
  * you will create in the React Storybook for manual testing.
  */
-class DemoComponent extends React.Component {
-	static displayName = 'PopoverDemoComponent';
+const DemoComponent = (props) => {
+	const [state, setState] = useState({});
 
-	static propTypes = {
-		isOpen: PropTypes.bool,
-	};
-
-	static defaultProps = defaultProps;
-
-	state = {};
-
-	render() {
-		return (
-			<Popover {...this.props}>
-				<Button label="Trigger Popover" />
-			</Popover>
-		);
-	}
-}
+	return (
+		<Popover {...props}>
+			<Button label="Trigger Popover" />
+		</Popover>
+	);
+};
 
 /* All tests for component being tested should be wrapped in a root `describe`,
  * which should be named after the component being tested.
@@ -72,7 +70,7 @@ describe('SLDSFilter', function describeFunction() {
 
 	// BASIC STRUCTURE
 
-	describe('Add custom props to Filter Popover', function() {
+	describe('Add custom props to Filter Popover', function () {
 		beforeEach(() => {
 			mountNode = createMountNode({ context: this });
 		});
@@ -104,7 +102,7 @@ describe('SLDSFilter', function describeFunction() {
 		});
 	});
 
-	describe('On click handler when clicking on filter', function() {
+	describe('On click handler when clicking on filter', function () {
 		beforeEach(() => {
 			mountNode = createMountNode({ context: this });
 		});
@@ -145,3 +143,7 @@ describe('SLDSFilter', function describeFunction() {
 		});
 	});
 });
+
+DemoComponent.propTypes = propTypes;
+DemoComponent.defaultProps = defaultProps;
+DemoComponent.displayName = displayName;

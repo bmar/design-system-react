@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import PropTypes from 'prop-types';
 import IconSettings from '~/components/icon-settings';
@@ -14,90 +14,91 @@ const options = {
 	],
 };
 
-class Example extends React.Component {
-	static displayName = 'FilterExample';
+const displayName = 'FilterExample';
 
-	static propTypes() {
-		return {
-			align: PropTypes.string,
-		};
-	}
+const propTypes = () => {
+	return {
+		align: PropTypes.string,
+	};
+};
 
-	state = {
+const Example = (props) => {
+	const [state, setState] = useState({
 		'show-me': {
 			comboboxSelection: [options['show-me'][0]],
 			selectedItem: options['show-me'][0],
 			isActive: true,
 		},
-	};
+	});
 
-	onChangePredicate = (event, { id }) => {
+	const onChangePredicate = (event, { id }) => {
 		const idSuffix = id.split('sample-panel-filtering-')[1];
-		this.setState({
+		setState({
 			[idSuffix]: {
-				...this.state[idSuffix],
-				selectedItem: this.state[idSuffix].comboboxSelection,
+				...state[idSuffix],
+				selectedItem: state[idSuffix].comboboxSelection,
 			},
 		});
 	};
 
-	onRemove = (event, { id }) => {
+	const onRemove = (event, { id }) => {
 		const idSuffix = id.split('sample-panel-filtering-')[1];
-		this.setState({
+		setState({
 			[idSuffix]: {
-				...this.state[idSuffix],
+				...state[idSuffix],
 				isActive: false,
 			},
 		});
 	};
 
-	render() {
-		return (
-			this.state['show-me'].isActive && (
-				<IconSettings iconPath="/assets/icons">
-					<div>
-						<Filter
-							errorLabel="Error Message"
-							align={this.props.align}
-							id="sample-panel-filtering-show-me"
-							isError
-							onChange={this.onChangePredicate}
-							onRemove={this.onRemove}
-							property="Show Me"
-							predicate={this.state['show-me'].selectedItem.label}
-						>
-							<Combobox
-								events={{
-									onSelect: (event, data) => {
-										this.setState({
-											'show-me': {
-												...this.state['show-me'],
-												comboboxSelection: data.selection,
-											},
-										});
-									},
-								}}
-								labels={{
-									label: 'Show Me',
-									placeholder: 'Select record type',
-								}}
-								menuPosition="relative"
-								options={options['show-me']}
-								selection={this.state['show-me'].comboboxSelection}
-								variant="readonly"
-							/>
-						</Filter>
-						<p
-							id="sample-panel-filtering-show-me-error"
-							className="slds-text-color_error slds-m-top_xx-small"
-						>
-							Error Message
-						</p>
-					</div>
-				</IconSettings>
-			)
-		);
-	}
-}
+	return (
+		state['show-me'].isActive && (
+			<IconSettings iconPath="/assets/icons">
+				<div>
+					<Filter
+						errorLabel="Error Message"
+						align={props.align}
+						id="sample-panel-filtering-show-me"
+						isError
+						onChange={onChangePredicate}
+						onRemove={onRemove}
+						property="Show Me"
+						predicate={state['show-me'].selectedItem.label}
+					>
+						<Combobox
+							events={{
+								onSelect: (event, data) => {
+									setState({
+										'show-me': {
+											...state['show-me'],
+											comboboxSelection: data.selection,
+										},
+									});
+								},
+							}}
+							labels={{
+								label: 'Show Me',
+								placeholder: 'Select record type',
+							}}
+							menuPosition="relative"
+							options={options['show-me']}
+							selection={state['show-me'].comboboxSelection}
+							variant="readonly"
+						/>
+					</Filter>
+					<p
+						id="sample-panel-filtering-show-me-error"
+						className="slds-text-color_error slds-m-top_xx-small"
+					>
+						Error Message
+					</p>
+				</div>
+			</IconSettings>
+		)
+	);
+};
+
+Example.propTypes = propTypes;
+Example.displayName = displayName;
 
 export default Example; // export is replaced with `ReactDOM.render(<Example />, mountNode);` at runtime
