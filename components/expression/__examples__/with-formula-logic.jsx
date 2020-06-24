@@ -1,22 +1,22 @@
 import React from 'react';
 import Example from './example';
 
-class FormulaLogic extends React.Component {
-	static displayName = 'ExpressionWithFormulaLogicExample';
+const displayName = 'ExpressionWithFormulaLogicExample';
 
-	render() {
-		return (
-			<Example
-				action={this.props.action}
-				conditions={[
-					{
-						resource: '',
-					},
-				]}
-				triggerType="formula"
-			/>
-		);
-	}
-}
+const FormulaLogic = (props) => {
+	return (
+		<Example
+			action={props.action}
+			conditions={[
+				{
+					resource: '',
+				},
+			]}
+			triggerType="formula"
+		/>
+	);
+};
+
+FormulaLogic.displayName = displayName;
 
 export default FormulaLogic;

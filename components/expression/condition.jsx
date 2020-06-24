@@ -2,7 +2,7 @@
 /* Licensed under BSD 3-Clause - see LICENSE.txt or git.io/sfdc-license */
 
 // Implements the [Expression Condition design pattern](https://lightningdesignsystem.com/components/expression/) in React.
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import assign from 'lodash.assign';
@@ -138,114 +138,108 @@ const defaultProps = {
 /**
  * Expression Condition Component
  */
-class ExpressionCondition extends React.Component {
-	constructor(props) {
-		super(props);
-		this.generatedId = shortid.generate();
-	}
+const ExpressionCondition = (props) => {
+	const generatedId = shortid.generate();
+	const rootNode = useRef();
 
-	componentDidMount() {
-		if (this.props.focusOnMount && this.rootNode) {
-			const input = this.rootNode.querySelector('input');
+	useEffect(() => {
+		if (props.focusOnMount && rootNode) {
+			const input = rootNode.current.querySelector('input');
 			if (input) {
 				input.focus();
 			}
 		}
-	}
+	});
 
 	/**
 	 * Get the Expression Condition's HTML id. Generate a new one if no ID present.
 	 */
-	getId() {
-		return this.props.id || this.generatedId;
-	}
+	const getId = () => {
+		return props.id || generatedId;
+	};
 
-	render() {
-		const assistiveText = assign(
-			{},
-			defaultProps.assistiveText,
-			this.props.assistiveText
-		);
-		const labels = assign({}, defaultProps.labels, this.props.labels);
-		return (
-			<li
-				className={classNames(
-					`slds-expression__row`,
-					{ 'slds-expression__row_group': this.props.isSubCondition },
-					this.props.className
-				)}
-				id={this.getId()}
-				ref={(rootNode) => {
-					this.rootNode = rootNode;
-				}}
-			>
-				<fieldset>
-					<legend className="slds-expression__legend">
-						<span>{labels.label}</span>
-						<span className="slds-assistive-text">{assistiveText.title}</span>
-					</legend>
-					<div className="slds-grid slds-gutters_xx-small">
-						<div className="slds-col">
-							<Combobox
-								events={{
-									onSelect: this.props.events.onChangeResource,
-								}}
-								id={`${this.getId()}-resource-selector`}
-								multiple={false}
-								variant="readonly"
-								labels={{ label: labels.resource }}
-								options={this.props.resourcesList}
-								selection={[this.props.resourceSelected]}
-							/>
-						</div>
-						<div className="slds-col slds-grow-none">
-							<Combobox
-								events={{
-									onSelect: this.props.events.onChangeOperator,
-								}}
-								id={`${this.getId()}-operator-selector`}
-								multiple={false}
-								variant="readonly"
-								labels={{ label: labels.operator }}
-								options={this.props.operatorsList}
-								selection={[this.props.operatorSelected]}
-								singleInputDisabled={!this.props.resourceSelected}
-							/>
-						</div>
-						<div className="slds-col">
-							<Input
-								id={`${this.getId()}-input`}
-								label={labels.value}
-								value={this.props.value}
-								onChange={this.props.events.onChangeValue}
-								disabled={!this.props.resourceSelected}
-							/>
-						</div>
-						<div className="slds-col slds-grow-none">
-							<div className="slds-form-element">
-								<span className="slds-form-element__label">&nbsp;</span>
-								<div className="slds-form-element__control">
-									<Button
-										id={`${this.getId()}-delete-button`}
-										variant="outline-brand"
-										iconCategory="utility"
-										iconName="delete"
-										iconVariant="border-filled"
-										onClick={this.props.events.onDelete}
-										assistiveText={{
-											icon: assistiveText.deleteIcon,
-										}}
-										title={labels.deleteCondition}
-									/>
-								</div>
+	const assistiveText = assign(
+		{},
+		defaultProps.assistiveText,
+		props.assistiveText
+	);
+	const labels = assign({}, defaultProps.labels, props.labels);
+	return (
+		<li
+			className={classNames(
+				`slds-expression__row`,
+				{ 'slds-expression__row_group': props.isSubCondition },
+				props.className
+			)}
+			id={getId()}
+			ref={rootNode}
+		>
+			<fieldset>
+				<legend className="slds-expression__legend">
+					<span>{labels.label}</span>
+					<span className="slds-assistive-text">{assistiveText.title}</span>
+				</legend>
+				<div className="slds-grid slds-gutters_xx-small">
+					<div className="slds-col">
+						<Combobox
+							events={{
+								onSelect: props.events.onChangeResource,
+							}}
+							id={`${getId()}-resource-selector`}
+							multiple={false}
+							variant="readonly"
+							labels={{ label: labels.resource }}
+							options={props.resourcesList}
+							selection={[props.resourceSelected]}
+						/>
+					</div>
+					<div className="slds-col slds-grow-none">
+						<Combobox
+							events={{
+								onSelect: props.events.onChangeOperator,
+							}}
+							id={`${getId()}-operator-selector`}
+							multiple={false}
+							variant="readonly"
+							labels={{ label: labels.operator }}
+							options={props.operatorsList}
+							selection={[props.operatorSelected]}
+							singleInputDisabled={!props.resourceSelected}
+						/>
+					</div>
+					<div className="slds-col">
+						<Input
+							id={`${getId()}-input`}
+							label={labels.value}
+							value={props.value}
+							onChange={props.events.onChangeValue}
+							disabled={!props.resourceSelected}
+						/>
+					</div>
+					<div className="slds-col slds-grow-none">
+						<div className="slds-form-element">
+							<span className="slds-form-element__label">&nbsp;</span>
+							<div className="slds-form-element__control">
+								<Button
+									id={`${getId()}-delete-button`}
+									variant="outline-brand"
+									iconCategory="utility"
+									iconName="delete"
+									iconVariant="border-filled"
+									onClick={props.events.onDelete}
+									assistiveText={{
+										icon: assistiveText.deleteIcon,
+									}}
+									title={labels.deleteCondition}
+								/>
 							</div>
 						</div>
 					</div>
-				</fieldset>
-			</li>
-		);
-	}
-}
+				</div>
+			</fieldset>
+		</li>
+	);
+};
 
 ExpressionCondition.displayName = EXPRESSION_CONDITION;
 ExpressionCondition.propTypes = propTypes;

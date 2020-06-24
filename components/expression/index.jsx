@@ -34,7 +34,7 @@ const propTypes = {
 	}),
 	/**
 	 * **Text labels for internationalization**
-	 * This object is merged with the default props object on every render.
+	 * object is merged with the default props object on every render.
 	 * * `addCondition`: Label for the Add Condition Button. Defaults to "Add Condition"
 	 * * `addGroup`: Label for the Add Group Button. Defaults to "Add Group"
 	 * * `customLogic`: Label for the text box for inputting `customLogicValue`, if the `triggerType` is `custom`. Defaults to "Custom Logic"
@@ -87,41 +87,37 @@ const defaultProps = {
  * These expressions can be used when querying for a filtered set of records,
  * creating rules to control when something executes, or any other conditional logic.
  */
-class Expression extends React.Component {
-	componentWillMount() {
-		this.generatedId = shortid.generate();
-	}
+const Expression = (props) => {
+	const generatedId = shortid.generate();
 
 	/**
 	 * Get the Expression Group's HTML id. Generate a new one if no ID present.
 	 */
-	getId() {
-		return this.props.id || this.generatedId;
-	}
+	const getId = () => {
+		return props.id || generatedId;
+	};
 
-	render() {
-		const labels = assign({}, defaultProps.labels, this.props.labels);
+	const labels = assign({}, defaultProps.labels, props.labels);
 
-		return (
-			<div
-				className={classNames('slds-expression', this.props.className)}
-				id={this.getId()}
+	return (
+		<div
+			className={classNames('slds-expression', props.className)}
+			id={getId()}
+		>
+			<h2 className="slds-expression__title">{labels.title}</h2>
+			<ExpressionGroup
+				isRoot
+				id={`${getId()}-group`}
+				events={props.events}
+				labels={labels}
+				customLogicValue={props.customLogicValue}
+				triggerType={props.triggerType}
 			>
-				<h2 className="slds-expression__title">{labels.title}</h2>
-				<ExpressionGroup
-					isRoot
-					id={`${this.getId()}-group`}
-					events={this.props.events}
-					labels={labels}
-					customLogicValue={this.props.customLogicValue}
-					triggerType={this.props.triggerType}
-				>
-					{this.props.children}
-				</ExpressionGroup>
-			</div>
-		);
-	}
-}
+				{props.children}
+			</ExpressionGroup>
+		</div>
+	);
+};
 
 Expression.displayName = EXPRESSION;
 Expression.propTypes = propTypes;

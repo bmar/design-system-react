@@ -2,7 +2,7 @@
 /* Licensed under BSD 3-Clause - see LICENSE.txt or git.io/sfdc-license */
 
 // Implements the [Expression Formula design pattern](https://lightningdesignsystem.com/components/expression/) in React.
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import assign from 'lodash.assign';
@@ -88,115 +88,106 @@ const defaultProps = {
 /**
  * Expression Formula Component
  */
-class ExpressionFormula extends React.Component {
-	constructor() {
-		super();
-		this.textEditorRef = React.createRef();
-		this.state = {
-			textEditorValue: 'Compose formula...', // default is set here to preserve functionality if not controlled by props.textEditorValue
-		};
-		this.generatedId = shortid.generate();
-	}
+const ExpressionFormula = (props) => {
+	const textEditorRef = useRef();
+	const [textEditorValue, setTextEditorValue] = useState('Compose formula...'); // default is set here to preserve functionality if not controlled by props.textEditorValue
+	const generatedId = shortid.generate();
 
 	/**
 	 * Get the Expression Condition's HTML id. Generate a new one if no ID present.
 	 */
-	getId() {
-		return this.props.id || this.generatedId;
-	}
+	const getId = () => {
+		return props.id || generatedId;
+	};
 
-	handleTextEditorChange = (event) => {
+	const handleTextEditorChange = (event) => {
 		const textEditorValue = event.target.value;
 
-		if (this.props.textEditorValue === undefined) {
-			this.setState({ textEditorValue });
+		if (props.textEditorValue === undefined) {
+			setTextEditorValue(textEditorValue);
 		}
 
-		if (this.props.events && this.props.events.onChangeTextEditor) {
-			this.props.events.onChangeTextEditor(event, { textEditorValue });
+		if (props.events && props.events.onChangeTextEditor) {
+			props.events.onChangeTextEditor(event, { textEditorValue });
 		}
 	};
 
-	render() {
-		const assistiveText = assign(
-			{},
-			defaultProps.assistiveText,
-			this.props.assistiveText
-		);
-		const labels = assign({}, defaultProps.labels, this.props.labels);
+	const assistiveText = assign(
+		{},
+		defaultProps.assistiveText,
+		props.assistiveText
+	);
+	const labels = assign({}, defaultProps.labels, props.labels);
 
-		return (
-			<React.Fragment>
-				<div
-					id={this.getId()}
-					className={classNames(
-						`slds-expression_formula__rte`,
-						this.props.className
-					)}
-				>
-					<div className="slds-form-element">
-						<span className="slds-form-element__label">{labels.label}</span>
-						<div className="slds-form-element__control">
-							<div className="slds-rich-text-editor slds-grid slds-grid_vertical slds-nowrap">
-								<div
-									role="toolbar"
-									className="slds-rich-text-editor__toolbar slds-shrink-none"
-								>
-									<div className="slds-rich-text-editor__col slds-rich-text-editor__col_grow">
-										{this.props.resourceCombobox}
-									</div>
-									<div className="slds-rich-text-editor__col slds-rich-text-editor__col_grow">
-										{this.props.functionCombobox}
-									</div>
-									<div className="slds-rich-text-editor__col slds-rich-text-editor__col_grow">
-										{this.props.operatorInput}
-									</div>
-									<div className="slds-rich-text-editor__col">
-										<Button
-											assistiveText={{
-												icon: assistiveText.help,
-											}}
-											className="slds-button_icon-container"
-											id={`${this.getId()}-help-button`}
-											variant="icon"
-											iconCategory="utility"
-											iconName="help"
-											onClick={this.props.events.onClickHelp}
-											title={assistiveText.help}
-										/>
-									</div>
+	return (
+		<React.Fragment>
+			<div
+				id={getId()}
+				className={classNames(`slds-expression_formula__rte`, props.className)}
+			>
+				<div className="slds-form-element">
+					<span className="slds-form-element__label">{labels.label}</span>
+					<div className="slds-form-element__control">
+						<div className="slds-rich-text-editor slds-grid slds-grid_vertical slds-nowrap">
+							<div
+								role="toolbar"
+								className="slds-rich-text-editor__toolbar slds-shrink-none"
+							>
+								<div className="slds-rich-text-editor__col slds-rich-text-editor__col_grow">
+									{props.resourceCombobox}
 								</div>
-								<div className="slds-rich-text-editor__textarea slds-grid">
-									<ContentEditable
-										id={`${this.getId()}-content-editor`}
-										aria-label={this.props.labels.textArea}
-										className="slds-rich-text-area__content slds-text-color_weak slds-grow"
-										innerRef={this.textEditorRef}
-										html={
-											this.props.textEditorValue !== undefined
-												? this.props.textEditorValue
-												: this.state.textEditorValue
-										}
-										onChange={this.handleTextEditorChange}
-										disabled={false}
+								<div className="slds-rich-text-editor__col slds-rich-text-editor__col_grow">
+									{props.functionCombobox}
+								</div>
+								<div className="slds-rich-text-editor__col slds-rich-text-editor__col_grow">
+									{props.operatorInput}
+								</div>
+								<div className="slds-rich-text-editor__col">
+									<Button
+										assistiveText={{
+											icon: assistiveText.help,
+										}}
+										className="slds-button_icon-container"
+										id={`${getId()}-help-button`}
+										variant="icon"
+										iconCategory="utility"
+										iconName="help"
+										onClick={props.events.onClickHelp}
+										title={assistiveText.help}
 									/>
 								</div>
+							</div>
+							<div className="slds-rich-text-editor__textarea slds-grid">
+								<ContentEditable
+									id={`${getId()}-content-editor`}
+									aria-label={props.labels.textArea}
+									className="slds-rich-text-area__content slds-text-color_weak slds-grow"
+									ref={textEditorRef}
+									innerRef={textEditorRef}
+									html={
+										props.textEditorValue !== undefined
+											? props.textEditorValue
+											: textEditorValue
+									}
+									onChange={handleTextEditorChange}
+									disabled={false}
+								/>
 							</div>
 						</div>
 					</div>
 				</div>
-				<div className="slds-m-top_small">
-					<Button
-						id={`${this.getId()}-check-syntax-button`}
-						variant="neutral"
-						label={labels.checkSyntax}
-						onClick={this.props.events.onClickCheckSyntax}
-					/>
-				</div>
-			</React.Fragment>
-		);
-	}
-}
+			</div>
+			<div className="slds-m-top_small">
+				<Button
+					id={`${getId()}-check-syntax-button`}
+					variant="neutral"
+					label={labels.checkSyntax}
+					onClick={props.events.onClickCheckSyntax}
+				/>
+			</div>
+		</React.Fragment>
+	);
+};
 
 ExpressionFormula.displayName = EXPRESSION_FORMULA;
 ExpressionFormula.propTypes = propTypes;

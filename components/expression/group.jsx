@@ -2,7 +2,7 @@
 /* Licensed under BSD 3-Clause - see LICENSE.txt or git.io/sfdc-license */
 
 // Implements the [Expression Group design pattern](https://lightningdesignsystem.com/components/expression/) in React.
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import assign from 'lodash.assign';
@@ -119,11 +119,11 @@ const defaultProps = {
 /**
  * Expression Group Component
  */
-class ExpressionGroup extends React.Component {
+const ExpressionGroup = (props) => {
 	/**
 	 *  Return triggerType selected, processing the triggerType objects generated
 	 */
-	static triggerChange(event, data) {
+	const triggerChange = (event, data) => {
 		const selection = data.selection[0].id;
 		let trigger = '';
 		if (selection === '1') {
@@ -138,34 +138,31 @@ class ExpressionGroup extends React.Component {
 			trigger = 'formula';
 		}
 		return trigger;
-	}
+	};
 
-	constructor(props) {
-		super(props);
-		this.generatedId = shortid.generate();
-	}
+	const generatedId = shortid.generate();
 
-	componentDidMount() {
-		if (this.props.focusOnMount && this.rootNode) {
-			const input = this.rootNode.querySelector('input');
+	useEffect(() => {
+		if (props.focusOnMount && rootNode) {
+			const input = rootNode.current.querySelector('input');
 			if (input) {
 				input.focus();
 			}
 		}
-	}
+	}, []);
 
 	/**
 	 * Get the Expression Group's HTML id. Generate a new one if no ID present.
 	 */
-	getId() {
-		return this.props.id || this.generatedId;
-	}
+	const getId = () => {
+		return props.id || generatedId;
+	};
 
 	/**
 	 * Generate and return trigger type objects, with labels either sent as props or using default props.
 	 */
-	getTriggers() {
-		const labels = assign({}, defaultProps.labels, this.props.labels);
+	const getTriggers = () => {
+		const labels = assign({}, defaultProps.labels, props.labels);
 		return [
 			{ id: '1', label: labels.triggerAll },
 			{ id: '2', label: labels.triggerAny },
@@ -173,14 +170,14 @@ class ExpressionGroup extends React.Component {
 			{ id: '4', label: labels.triggerAlways },
 			{ id: '5', label: labels.triggerFormula },
 		];
-	}
+	};
 
 	/**
 	 *  Returns object of trigger from trigger passed as prop
 	 */
-	getTriggerSelection() {
-		const selection = this.props.triggerType;
-		const Triggers = this.getTriggers();
+	const getTriggerSelection = () => {
+		const selection = props.triggerType;
+		const Triggers = getTriggers();
 		const t = [];
 		if (selection === 'all') {
 			// eslint-disable-next-line fp/no-mutating-methods
@@ -199,124 +196,120 @@ class ExpressionGroup extends React.Component {
 			t.push(Triggers[4]);
 		}
 		return t;
-	}
+	};
 
-	render() {
-		const assistiveText = assign(
-			{},
-			defaultProps.assistiveText,
-			this.props.assistiveText
-		);
-		const labels = assign({}, defaultProps.labels, this.props.labels);
+	const assistiveText = assign(
+		{},
+		defaultProps.assistiveText,
+		props.assistiveText
+	);
+	const labels = assign({}, defaultProps.labels, props.labels);
 
-		const triggerCombobox = (
-			<Combobox
-				events={{
-					onSelect: (event, data) =>
-						this.props.events.onChangeTrigger(event, {
-							triggerType: ExpressionGroup.triggerChange(event, data),
-						}),
-				}}
-				id={`${this.getId()}-take-action-trigger`}
-				multiple={false}
-				options={this.getTriggers()}
-				variant="readonly"
-				labels={{ label: labels.takeAction }}
-				selection={this.getTriggerSelection()}
-			/>
-		);
+	const triggerCombobox = (
+		<Combobox
+			events={{
+				onSelect: (event, data) =>
+					props.events.onChangeTrigger(event, {
+						triggerType: ExpressionGroup.triggerChange(event, data),
+					}),
+			}}
+			id={`${getId()}-take-action-trigger`}
+			multiple={false}
+			options={getTriggers()}
+			variant="readonly"
+			labels={{ label: labels.takeAction }}
+			selection={getTriggerSelection()}
+		/>
+	);
 
-		const buttons =
-			this.props.triggerType !== 'always' &&
-			this.props.triggerType !== 'formula' ? (
-				<div className="slds-expression__buttons">
+	const buttons =
+		props.triggerType !== 'always' && props.triggerType !== 'formula' ? (
+			<div className="slds-expression__buttons">
+				<Button
+					iconCategory="utility"
+					iconName="add"
+					iconPosition="left"
+					id={`${getId()}-add-condition-button`}
+					label={labels.addCondition}
+					assistiveText={{ icon: assistiveText.addCondition }}
+					onClick={props.events.onAddCondition}
+				/>
+				{props.isRoot ? (
 					<Button
 						iconCategory="utility"
 						iconName="add"
 						iconPosition="left"
-						id={`${this.getId()}-add-condition-button`}
-						label={labels.addCondition}
-						assistiveText={{ icon: assistiveText.addCondition }}
-						onClick={this.props.events.onAddCondition}
+						id={`${getId()}-add-group-button`}
+						label={labels.addGroup}
+						assistiveText={{ icon: assistiveText.addGroup }}
+						onClick={props.events.onAddGroup}
 					/>
-					{this.props.isRoot ? (
-						<Button
-							iconCategory="utility"
-							iconName="add"
-							iconPosition="left"
-							id={`${this.getId()}-add-group-button`}
-							label={labels.addGroup}
-							assistiveText={{ icon: assistiveText.addGroup }}
-							onClick={this.props.events.onAddGroup}
+				) : null}
+			</div>
+		) : null;
+
+	let body = null;
+
+	if (props.triggerType !== 'always') {
+		if (props.isRoot && props.triggerType === 'formula') {
+			body = props.children;
+		} else {
+			body = (
+				<React.Fragment>
+					{props.triggerType === 'custom' ? (
+						<Input
+							label={labels.customLogic}
+							className="slds-expression__custom-logic"
+							id={`${getId()}-custom-logic-input`}
+							value={props.customLogicValue}
+							variant="base"
+							onChange={props.events.onChangeCustomLogicValue}
 						/>
 					) : null}
-				</div>
-			) : null;
-
-		let body = null;
-
-		if (this.props.triggerType !== 'always') {
-			if (this.props.isRoot && this.props.triggerType === 'formula') {
-				body = this.props.children;
-			} else {
-				body = (
-					<React.Fragment>
-						{this.props.triggerType === 'custom' ? (
-							<Input
-								label={labels.customLogic}
-								className="slds-expression__custom-logic"
-								id={`${this.getId()}-custom-logic-input`}
-								value={this.props.customLogicValue}
-								variant="base"
-								onChange={this.props.events.onChangeCustomLogicValue}
-							/>
-						) : null}
-						<ul>{this.props.children}</ul>
-					</React.Fragment>
-				);
-			}
+					<ul>{props.children}</ul>
+				</React.Fragment>
+			);
 		}
+	}
 
-		if (this.props.isRoot) {
-			if (this.props.triggerType === 'formula') {
-				return (
-					<React.Fragment>
-						<div className="slds-expression__options">{triggerCombobox}</div>
-						{body}
-					</React.Fragment>
-				);
-			}
-
+	if (props.isRoot) {
+		if (props.triggerType === 'formula') {
 			return (
-				<div className={classNames(this.props.className)} id={this.getId()}>
+				<React.Fragment>
 					<div className="slds-expression__options">{triggerCombobox}</div>
 					{body}
-					{buttons}
-				</div>
+				</React.Fragment>
 			);
 		}
 
 		return (
-			<li
-				className={classNames('slds-expression__group', this.props.className)}
-				id={this.getId()}
-				ref={(rootNode) => {
-					this.rootNode = rootNode;
-				}}
-			>
-				<fieldset>
-					<legend className="slds-expression__legend slds-expression__legend_group">
-						<span>{labels.label}</span>
-						<span className="slds-assistive-text">{assistiveText.label}</span>
-					</legend>
-					<div className="slds-expression__options">{triggerCombobox}</div>
-					{body}
-					{buttons}
-				</fieldset>
-			</li>
+			<div className={classNames(props.className)} id={getId()}>
+				<div className="slds-expression__options">{triggerCombobox}</div>
+				{body}
+				{buttons}
+			</div>
 		);
 	}
-}
+
+	const rootNode = useRef();
+	return (
+		<li
+			className={classNames('slds-expression__group', props.className)}
+			id={getId()}
+			ref={rootNode}
+		>
+			<fieldset>
+				<legend className="slds-expression__legend slds-expression__legend_group">
+					<span>{labels.label}</span>
+					<span className="slds-assistive-text">{assistiveText.label}</span>
+				</legend>
+				<div className="slds-expression__options">{triggerCombobox}</div>
+				{body}
+				{buttons}
+			</fieldset>
+		</li>
+	);
+};
 
 ExpressionGroup.displayName = EXPRESSION_GROUP;
 ExpressionGroup.propTypes = propTypes;
