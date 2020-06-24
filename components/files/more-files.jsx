@@ -70,59 +70,55 @@ const defaultProps = {
 /**
  * MoreFiles is a component that represents a number of file contents uploaded as an attachment.
  */
-class MoreFiles extends React.Component {
-	componentWillMount() {
-		this.generatedId = shortid.generate();
-	}
+const MoreFiles = (props) => {
+	const generatedId = shortid.generate();
 
-	getId() {
-		return this.props.id || this.generatedId;
-	}
+	const getId = () => {
+		return props.id || generatedId;
+	};
 
-	render() {
-		const assistiveText = {
-			...defaultProps.assistiveText,
-			...this.props.assistiveText,
-		};
+	const assistiveText = {
+		...defaultProps.assistiveText,
+		...props.assistiveText,
+	};
 
-		return (
-			<div
-				className={classNames(`slds-file slds-file_card`, this.props.className)}
-				id={this.getId()}
-			>
-				<figure>
-					<a
-						href={this.props.href}
-						className={classNames(
-							'slds-file__crop',
-							this.props.crop ? `slds-file__crop_${this.props.crop}` : null
-						)}
-					>
-						<div className="slds-file_overlay" />
-						<span className="slds-assistive-text">{assistiveText.link}</span>
-						<img src={this.props.image} alt={assistiveText.image} />
-					</a>
-					<figcaption className="slds-file__title slds-file__title_overlay slds-align_absolute-center slds-text-heading_large">
-						<div className="slds-media slds-media_small slds-media_center">
-							<div className="slds-media__figure slds-line-height_reset" />
-							<div className="slds-media__body">
-								<span
-									className="slds-file__text slds-truncate"
-									title={this.props.count}
-								>
-									<span>{this.props.count}</span>
-									<span className="slds-assistive-text">
-										{assistiveText.count}
-									</span>
+	return (
+		<div
+			className={classNames(`slds-file slds-file_card`, props.className)}
+			id={getId()}
+		>
+			<figure>
+				<a
+					href={props.href}
+					className={classNames(
+						'slds-file__crop',
+						props.crop ? `slds-file__crop_${props.crop}` : null
+					)}
+				>
+					<div className="slds-file_overlay" />
+					<span className="slds-assistive-text">{assistiveText.link}</span>
+					<img src={props.image} alt={assistiveText.image} />
+				</a>
+				<figcaption className="slds-file__title slds-file__title_overlay slds-align_absolute-center slds-text-heading_large">
+					<div className="slds-media slds-media_small slds-media_center">
+						<div className="slds-media__figure slds-line-height_reset" />
+						<div className="slds-media__body">
+							<span
+								className="slds-file__text slds-truncate"
+								title={props.count}
+							>
+								<span>{props.count}</span>
+								<span className="slds-assistive-text">
+									{assistiveText.count}
 								</span>
-							</div>
+							</span>
 						</div>
-					</figcaption>
-				</figure>
-			</div>
-		);
-	}
-}
+					</div>
+				</figcaption>
+			</figure>
+		</div>
+	);
+};
 
 MoreFiles.displayName = displayName;
 MoreFiles.propTypes = propTypes;

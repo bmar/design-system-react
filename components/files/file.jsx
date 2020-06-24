@@ -95,6 +95,19 @@ const propTypes = {
 	hasNoVisibleTitle: PropTypes.bool,
 };
 
+const injectMoreActionsStyles = () => {
+	return (
+		<style>{`
+				.dsr-file__more-actions-dropdown  ul.dropdown__list li.slds-dropdown__item > a:before
+				{ background: none; }
+				.dsr-file__more-actions-dropdown  ul.dropdown__list li.slds-dropdown__item > a:after
+				{ background: none; }
+				.dsr-file__more-actions > button:first-child
+				{ border-radius: 0 0.25rem 0.25rem 0!important;}
+		`}</style>
+	);
+};
+
 const defaultProps = {
 	assistiveText: {
 		download: 'download',
@@ -110,105 +123,89 @@ const defaultProps = {
 /**
  * File is a component that represents content uploaded as an attachment.
  */
-class File extends React.Component {
-	static injectMoreActionsStyles() {
-		return (
-			<style>{`
-					.dsr-file__more-actions-dropdown  ul.dropdown__list li.slds-dropdown__item > a:before
-					{ background: none; }
-					.dsr-file__more-actions-dropdown  ul.dropdown__list li.slds-dropdown__item > a:after
-					{ background: none; }
-					.dsr-file__more-actions > button:first-child
-					{ border-radius: 0 0.25rem 0.25rem 0!important;}
-			`}</style>
-		);
-	}
-
-	componentWillMount() {
-		this.generatedId = shortid.generate();
-	}
+const File = (props) => {
+	const generatedId = shortid.generate();
 
 	/**
 	 * Get the File's HTML id. Generate a new one if no ID present.
 	 */
-	getId() {
-		return this.props.id || this.generatedId;
-	}
+	const getId = () => {
+		return props.id || generatedId;
+	};
 
-	render() {
-		const assistiveText = {
-			...defaultProps.assistiveText,
-			...this.props.assistiveText,
-		};
+	const assistiveText = {
+		...defaultProps.assistiveText,
+		...props.assistiveText,
+	};
 
-		return (
-			<div
-				id={this.getId()}
-				className={classNames(
-					'slds-file',
-					'slds-file_card',
-					!this.props.hasNoVisibleTitle ? 'slds-has-title' : null,
-					this.props.className
-				)}
-			>
-				<figure>
-					<a
-						href={this.props.href}
-						className={classNames(
-							'slds-file__crop',
-							this.props.crop ? `slds-file__crop_${this.props.crop}` : null
-						)}
-						onClick={this.props.onClickImage}
-					>
-						<FileFigure
-							assistiveText={assistiveText}
-							labels={{
-								title: this.props.labels.title,
-							}}
-							isLoading={this.props.isLoading}
-							image={this.props.image}
-							icon={this.props.icon}
-						/>
-					</a>
-					{!this.props.hasNoVisibleTitle ? (
-						<figcaption className="slds-file__title slds-file__title_card">
-							<div className="slds-media__figure slds-line-height_reset">
-								{this.props.icon
-									? React.cloneElement(this.props.icon, {
-											size: 'x-small',
-										})
-									: null}
-							</div>
-							<div className="slds-media__body">
-								<span
-									className="slds-file__text slds-truncate"
-									title={this.props.labels.title}
-								>
-									{this.props.labels.title}
-								</span>
-							</div>
-						</figcaption>
-					) : null}
-				</figure>
-				{this.props.externalIcon ? (
-					<div className="slds-file__external-icon">
-						{React.cloneElement(this.props.externalIcon, {
-							containerClassName: 'slds-file__icon slds-icon_container',
-						})}
-					</div>
+	return (
+		<div
+			id={getId()}
+			className={classNames(
+				'slds-file',
+				'slds-file_card',
+				!props.hasNoVisibleTitle ? 'slds-has-title' : null,
+				props.className
+			)}
+		>
+			<figure>
+				<a
+					href={props.href}
+					className={classNames(
+						'slds-file__crop',
+						props.crop ? `slds-file__crop_${props.crop}` : null
+					)}
+					onClick={props.onClickImage}
+				>
+					<FileFigure
+						assistiveText={assistiveText}
+						labels={{
+							title: props.labels.title,
+						}}
+						isLoading={props.isLoading}
+						image={props.image}
+						icon={props.icon}
+					/>
+				</a>
+				{!props.hasNoVisibleTitle ? (
+					<figcaption className="slds-file__title slds-file__title_card">
+						<div className="slds-media__figure slds-line-height_reset">
+							{props.icon
+								? React.cloneElement(props.icon, {
+										size: 'x-small',
+								  })
+								: null}
+						</div>
+						<div className="slds-media__body">
+							<span
+								className="slds-file__text slds-truncate"
+								title={props.labels.title}
+							>
+								{props.labels.title}
+							</span>
+						</div>
+					</figcaption>
 				) : null}
-				{this.props.moreActionsDropdown ? File.injectMoreActionsStyles() : null}
-				<FileActions
-					assistiveText={assistiveText}
-					hasNoVisibleTitle={this.props.hasNoVisibleTitle}
-					onClickDownload={this.props.onClickDownload}
-					moreActionsDropdown={this.props.moreActionsDropdown}
-				/>
-			</div>
-		);
-	}
-}
+			</figure>
+			{props.externalIcon ? (
+				<div className="slds-file__external-icon">
+					{React.cloneElement(props.externalIcon, {
+						containerClassName: 'slds-file__icon slds-icon_container',
+					})}
+				</div>
+			) : null}
+			{props.moreActionsDropdown ? File.injectMoreActionsStyles() : null}
+			<FileActions
+				assistiveText={assistiveText}
+				hasNoVisibleTitle={props.hasNoVisibleTitle}
+				onClickDownload={props.onClickDownload}
+				moreActionsDropdown={props.moreActionsDropdown}
+			/>
+		</div>
+	);
+};
 
+File.injectMoreActionsStyles = injectMoreActionsStyles;
 File.displayName = displayName;
 File.propTypes = propTypes;
 File.defaultProps = defaultProps;

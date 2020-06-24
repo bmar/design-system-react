@@ -45,45 +45,38 @@ const defaultProps = {
 /**
  * Files is a component that wraps multiple file components that represent an attachment
  */
-class Files extends React.Component {
-	componentWillMount() {
-		this.generatedId = shortid.generate();
-	}
+const Files = (props) => {
+	const generatedId = shortid.generate();
 
 	/**
 	 * Get the File's HTML id. Generate a new one if no ID present.
 	 */
-	getId() {
-		return this.props.id || this.generatedId;
-	}
+	const getId = () => {
+		return props.id || generatedId;
+	};
 
-	render() {
-		const files = React.Children.map(this.props.children, (option) => (
-			<li
-				className={classNames(
-					`slds-p-horizontal_xx-small slds-size_1-of-3 slds-medium-size_1-of-4`,
-					this.props.columnClassName
-				)}
-			>
-				{React.cloneElement(option, {
-					crop: option.props.crop ? option.props.crop : this.props.crop,
-				})}
-			</li>
-		));
+	const files = React.Children.map(props.children, (option) => (
+		<li
+			className={classNames(
+				`slds-p-horizontal_xx-small slds-size_1-of-3 slds-medium-size_1-of-4`,
+				props.columnClassName
+			)}
+		>
+			{React.cloneElement(option, {
+				crop: option.props.crop ? option.props.crop : props.crop,
+			})}
+		</li>
+	));
 
-		return (
-			<ul
-				className={classNames(
-					'slds-grid slds-grid_pull-padded',
-					this.props.className
-				)}
-				id={this.getId()}
-			>
-				{files}
-			</ul>
-		);
-	}
-}
+	return (
+		<ul
+			className={classNames('slds-grid slds-grid_pull-padded', props.className)}
+			id={getId()}
+		>
+			{files}
+		</ul>
+	);
+};
 
 Files.displayName = displayName;
 Files.propTypes = propTypes;
