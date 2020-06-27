@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
@@ -110,163 +110,153 @@ const HeaderProfileCustomContent = (props) => (
 );
 HeaderProfileCustomContent.displayName = 'HeaderProfileCustomContent';
 
-class GlobalHeaderDemo extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			favoritesActionSelected: false,
-		};
-	}
+const GlobalHeaderDemo = (props) => {
+	const [favoritesActionSelected, setFavoritesActionSelected] = useState(false);
 
-	render() {
-		return (
-			<GlobalHeader
-				onSkipToContent={action('Skip to Main Content')}
-				onSkipToNav={action('Skip to Navigation')}
-				// Add back for visual review with navigation present.
-				// The presence of React Modal in App Launcher in Global Navigation prevents Jest (node) testing.
-				// navigation={globalNavigationBar(props)}
-				assistiveText={{
-					skipToContent: 'Skip to Main Content',
-					skipToNavAssistiveText: 'Skip to Navigation',
+	return (
+		<GlobalHeader
+			onSkipToContent={action('Skip to Main Content')}
+			onSkipToNav={action('Skip to Navigation')}
+			// Add back for visual review with navigation present.
+			// The presence of React Modal in App Launcher in Global Navigation prevents Jest (node) testing.
+			// navigation={globalNavigationBar(props)}
+			assistiveText={{
+				skipToContent: 'Skip to Main Content',
+				skipToNavAssistiveText: 'Skip to Navigation',
+			}}
+		>
+			<GlobalHeaderSearch
+				combobox={
+					<Combobox
+						assistiveText={{ label: 'Search' }}
+						events={{
+							onSelect: action('Search Selected'),
+						}}
+						id="header-search-custom-id"
+						labels={{ placeholder: 'Search Salesforce' }}
+						options={[
+							{ id: 'email', label: 'Email' },
+							{ id: 'mobile', label: 'Mobile' },
+						]}
+					/>
+				}
+			/>
+			<GlobalHeaderFavorites
+				actionSelected={favoritesActionSelected}
+				onToggleActionSelected={(event, data) => {
+					setFavoritesActionSelected(!data.actionSelected);
 				}}
-			>
-				<GlobalHeaderSearch
-					combobox={
-						<Combobox
-							assistiveText={{ label: 'Search' }}
-							events={{
-								onSelect: action('Search Selected'),
-							}}
-							id="header-search-custom-id"
-							labels={{ placeholder: 'Search Salesforce' }}
-							options={[
-								{ id: 'email', label: 'Email' },
-								{ id: 'mobile', label: 'Mobile' },
-							]}
-						/>
-					}
-				/>
-				<GlobalHeaderFavorites
-					actionSelected={this.state.favoritesActionSelected}
-					onToggleActionSelected={(event, data) => {
-						this.setState({ favoritesActionSelected: !data.actionSelected });
-					}}
-					popover={
-						<Popover
-							ariaLabelledby="favorites-heading"
-							body={
-								<div>
-									<h2
-										className="slds-text-heading_small"
-										id="favorites-heading"
-									>
-										Favorites
-									</h2>
-									{ipsum}
-								</div>
-							}
-							id="header-favorites-popover-id"
-						/>
-					}
-				/>
-				<GlobalHeaderTask
-					dropdown={
-						<Dropdown
-							id="header-task-dropdown-id"
-							options={[
-								{ id: 'taskOptionOne', label: 'Task Option One' },
-								{ id: 'taskOptionTwo', label: 'Task Option Two' },
-							]}
-						/>
-					}
-				/>
-				<GlobalHeaderHelp
-					popover={
-						<Popover
-							ariaLabelledby="help-heading"
-							body={
-								<div>
-									<h2 className="slds-text-heading_small" id="help-heading">
-										Help and Training
-									</h2>
-									{ipsum}
-								</div>
-							}
-							id="header-help-popover-id"
-						/>
-					}
-				/>
-				<GlobalHeaderSetup
-					dropdown={
-						<Dropdown
-							id="header-setup-dropdown-id"
-							options={[
-								{ id: 'setupOptionOne', label: 'Setup Option One' },
-								{ id: 'setupOptionTwo', label: 'Setup Option Two' },
-							]}
-						/>
-					}
-				/>
-				<GlobalHeaderNotifications
-					notificationCount={5}
-					popover={
-						<Popover
-							ariaLabelledby="header-notifications-custom-popover-content"
-							body={
-								<HeaderNotificationsCustomContent
-									items={[
-										{
-											action: 'mentioned you',
-											avatar: 'avatar2',
-											comment:
-												'@jrogers Could I please have a review on my presentation deck',
-											id: 1,
-											name: 'Val Handerly',
-											timePosted: '10 hours ago',
-											unread: true,
-										},
-										{
-											action: 'commented on your post',
-											avatar: 'avatar3',
-											comment: 'I totally agree with your sentiment',
-											id: 2,
-											name: 'Jon Rogers',
-											timePosted: '13 hours ago',
-											unread: true,
-										},
-										{
-											action: 'mentioned you',
-											avatar: 'avatar2',
-											comment:
-												"@jrogers Here's the conversation I mentioned to you",
-											id: 3,
-											name: 'Rebecca Stone',
-											timePosted: '1 day ago',
-										},
-									]}
-								/>
-							}
-							id="header-notifications-popover-id"
-						/>
-					}
-				/>
-				<GlobalHeaderProfile
-					avatar={this.props.avatar}
-					buttonClassName="custom-button-class"
-					className="custom-popover-class"
-					popover={
-						<Popover
-							body={<HeaderProfileCustomContent />}
-							id="header-profile-popover-id"
-						/>
-					}
-					userName="Art Vandelay"
-				/>
-			</GlobalHeader>
-		);
-	}
-}
+				popover={
+					<Popover
+						ariaLabelledby="favorites-heading"
+						body={
+							<div>
+								<h2 className="slds-text-heading_small" id="favorites-heading">
+									Favorites
+								</h2>
+								{ipsum}
+							</div>
+						}
+						id="header-favorites-popover-id"
+					/>
+				}
+			/>
+			<GlobalHeaderTask
+				dropdown={
+					<Dropdown
+						id="header-task-dropdown-id"
+						options={[
+							{ id: 'taskOptionOne', label: 'Task Option One' },
+							{ id: 'taskOptionTwo', label: 'Task Option Two' },
+						]}
+					/>
+				}
+			/>
+			<GlobalHeaderHelp
+				popover={
+					<Popover
+						ariaLabelledby="help-heading"
+						body={
+							<div>
+								<h2 className="slds-text-heading_small" id="help-heading">
+									Help and Training
+								</h2>
+								{ipsum}
+							</div>
+						}
+						id="header-help-popover-id"
+					/>
+				}
+			/>
+			<GlobalHeaderSetup
+				dropdown={
+					<Dropdown
+						id="header-setup-dropdown-id"
+						options={[
+							{ id: 'setupOptionOne', label: 'Setup Option One' },
+							{ id: 'setupOptionTwo', label: 'Setup Option Two' },
+						]}
+					/>
+				}
+			/>
+			<GlobalHeaderNotifications
+				notificationCount={5}
+				popover={
+					<Popover
+						ariaLabelledby="header-notifications-custom-popover-content"
+						body={
+							<HeaderNotificationsCustomContent
+								items={[
+									{
+										action: 'mentioned you',
+										avatar: 'avatar2',
+										comment:
+											'@jrogers Could I please have a review on my presentation deck',
+										id: 1,
+										name: 'Val Handerly',
+										timePosted: '10 hours ago',
+										unread: true,
+									},
+									{
+										action: 'commented on your post',
+										avatar: 'avatar3',
+										comment: 'I totally agree with your sentiment',
+										id: 2,
+										name: 'Jon Rogers',
+										timePosted: '13 hours ago',
+										unread: true,
+									},
+									{
+										action: 'mentioned you',
+										avatar: 'avatar2',
+										comment:
+											"@jrogers Here's the conversation I mentioned to you",
+										id: 3,
+										name: 'Rebecca Stone',
+										timePosted: '1 day ago',
+									},
+								]}
+							/>
+						}
+						id="header-notifications-popover-id"
+					/>
+				}
+			/>
+			<GlobalHeaderProfile
+				avatar={props.avatar}
+				buttonClassName="custom-button-class"
+				className="custom-popover-class"
+				popover={
+					<Popover
+						body={<HeaderProfileCustomContent />}
+						id="header-profile-popover-id"
+					/>
+				}
+				userName="Art Vandelay"
+			/>
+		</GlobalHeader>
+	);
+};
 GlobalHeaderDemo.displayName = 'GlobalHeaderDemo';
 
 storiesOf(GLOBAL_HEADER, module)

@@ -47,83 +47,81 @@ const propTypes = {
 /**
  * A GlobalHeaderFavorites component. The favorites action is used to "favorite" a commonly used page within a user's experience. When a user "favorites" a page by pressing the favorites action, the button icon changes color with a small animation to confirm your selection.
  */
-class GlobalHeaderFavorites extends React.Component {
-	toggleActionSelected = (event) => {
-		if (this.props.onToggleActionSelected) {
-			this.props.onToggleActionSelected(event, {
-				actionSelected: this.props.actionSelected || false,
+const GlobalHeaderFavorites = (props) => {
+	const toggleActionSelected = (event) => {
+		if (props.onToggleActionSelected) {
+			props.onToggleActionSelected(event, {
+				actionSelected: props.actionSelected || false,
 			});
 		}
 	};
 
-	render() {
-		const actionAriaProps = {};
-		const popoverProps = assign(
-			{
-				align: 'bottom',
-				body: <span />,
-				triggerClassName: 'slds-dropdown-trigger slds-dropdown-trigger_click',
-			},
-			this.props.popover ? this.props.popover.props : {}
-		);
+	const actionAriaProps = {};
+	const popoverProps = assign(
+		{
+			align: 'bottom',
+			body: <span />,
+			triggerClassName: 'slds-dropdown-trigger slds-dropdown-trigger_click',
+		},
+		props.popover ? props.popover.props : {}
+	);
 
-		// eslint-disable-next-line fp/no-delete
-		delete popoverProps.children;
+	// eslint-disable-next-line fp/no-delete
+	delete popoverProps.children;
 
-		if (this.props.actionSelected) {
-			actionAriaProps['aria-pressed'] = true;
-		}
+	if (props.actionSelected) {
+		actionAriaProps['aria-pressed'] = true;
+	}
 
-		return (
-			<div className="slds-global-actions__favorites slds-dropdown-trigger slds-dropdown-trigger_click">
-				<div className="slds-button-group">
+	return (
+		<div className="slds-global-actions__favorites slds-dropdown-trigger slds-dropdown-trigger_click">
+			<div className="slds-button-group">
+				<Button
+					assistiveText={{ icon: props.assistiveText.action }}
+					className={classnames(
+						'slds-button_icon slds-global-actions__favorites-action',
+						{
+							'slds-is-disabled': props.actionDisabled,
+							'slds-is-selected': props.actionSelected,
+						}
+					)}
+					disabled={props.actionDisabled}
+					iconCategory="utility"
+					iconName="favorite"
+					iconSize="small"
+					iconVariant="border"
+					onClick={toggleActionSelected}
+					onKeyDown={(event) => {
+						if (event.keyCode === KEYS.ENTER) {
+							EventUtil.trapImmediate(event);
+							toggleActionSelected(event);
+						}
+					}}
+					title={props.assistiveText.action}
+					variant="icon"
+					{...actionAriaProps}
+				/>
+				<Popover {...popoverProps}>
 					<Button
-						assistiveText={{ icon: this.props.assistiveText.action }}
-						className={classnames(
-							'slds-button_icon slds-global-actions__favorites-action',
-							{
-								'slds-is-disabled': this.props.actionDisabled,
-								'slds-is-selected': this.props.actionSelected,
-							}
-						)}
-						disabled={this.props.actionDisabled}
+						assistiveText={{ icon: props.assistiveText.more }}
+						className="slds-button_icon slds-global-actions__favorites-more"
 						iconCategory="utility"
-						iconName="favorite"
+						iconName="down"
 						iconSize="small"
 						iconVariant="border"
-						onClick={this.toggleActionSelected}
-						onKeyDown={(event) => {
-							if (event.keyCode === KEYS.ENTER) {
-								EventUtil.trapImmediate(event);
-								this.toggleActionSelected(event);
-							}
+						style={{
+							// this is needed because the popover trigger wrapper janks up the default styles
+							borderLeft: '0',
+							borderRadius: '0 .25rem .25rem 0',
 						}}
-						title={this.props.assistiveText.action}
+						title={props.assistiveText.more}
 						variant="icon"
-						{...actionAriaProps}
 					/>
-					<Popover {...popoverProps}>
-						<Button
-							assistiveText={{ icon: this.props.assistiveText.more }}
-							className="slds-button_icon slds-global-actions__favorites-more"
-							iconCategory="utility"
-							iconName="down"
-							iconSize="small"
-							iconVariant="border"
-							style={{
-								// this is needed because the popover trigger wrapper janks up the default styles
-								borderLeft: '0',
-								borderRadius: '0 .25rem .25rem 0',
-							}}
-							title={this.props.assistiveText.more}
-							variant="icon"
-						/>
-					</Popover>
-				</div>
+				</Popover>
 			</div>
-		);
-	}
-}
+		</div>
+	);
+};
 
 GlobalHeaderFavorites.displayName = GLOBAL_HEADER_FAVORITES;
 
