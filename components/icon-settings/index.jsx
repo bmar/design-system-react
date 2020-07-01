@@ -43,15 +43,15 @@ const IconSettings = (props) => {
 
 IconSettings.displayName = ICON_SETTINGS;
 
-// IconSettings.childContextTypes = {
-// 	iconPath: PropTypes.string,
-// 	onRequestIconPath: PropTypes.func,
-// 	actionSprite: PropTypes.string,
-// 	customSprite: PropTypes.string,
-// 	doctypeSprite: PropTypes.string,
-// 	standardSprite: PropTypes.string,
-// 	utilitySprite: PropTypes.string,
-// };
+IconSettings.childContextTypes = {
+	iconPath: PropTypes.string,
+	onRequestIconPath: PropTypes.func,
+	actionSprite: PropTypes.string,
+	customSprite: PropTypes.string,
+	doctypeSprite: PropTypes.string,
+	standardSprite: PropTypes.string,
+	utilitySprite: PropTypes.string,
+};
 
 IconSettings.propTypes = {
 	/**

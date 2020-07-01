@@ -27,6 +27,7 @@ import { DIALOG } from '../../../utilities/constants';
 
 // #### Dialog doesn't pass down <IconSettings> context so repassing it here.
 import IconSettings from '../../icon-settings';
+import IconContext from '../../icon-settings/icon-context';
 // eslint-disable-next-line camelcase
 import UNSAFE_DirectionSettings, { DIRECTIONS } from '../UNSAFE_direction';
 import LanguageDirection from '../UNSAFE_direction/private/language-direction';
@@ -52,6 +53,8 @@ import LanguageDirection from '../UNSAFE_direction/private/language-direction';
  * This component is private.
  */
 class Dialog extends React.Component {
+	static context = IconContext;
+
 	static displayName = DIALOG;
 
 	static propTypes = {
