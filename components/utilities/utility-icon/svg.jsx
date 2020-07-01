@@ -3,66 +3,65 @@
 
 import React from 'react';
 
-class Svg extends React.Component {
-	static displayName = 'Svg';
-
-	getPaths = (paths) => {
+const displayName = 'Svg';
+const Svg = (props) => {
+	const getPaths = (paths) => {
 		if (paths instanceof Array) {
 			return paths.map((item) => <path {...item} />);
 		}
 		return <path key="pathSVG" {...paths} />;
 	};
 
-	getCircles = (circles) => {
+	const getCircles = (circles) => {
 		if (circles instanceof Array) {
 			return circles.map((item) => <circle {...item} />);
 		}
 		return <circle key="circleSVG" {...circles} />;
 	};
 
-	getEllipses = (ellipses) => {
+	const getEllipses = (ellipses) => {
 		if (ellipses instanceof Array) {
 			return ellipses.map((item) => <ellipse {...item} />);
 		}
 		return <ellipse key="ellipseSVG" {...ellipses} />;
 	};
 
-	getGroups = (groups) => {
+	const getGroups = (groups) => {
 		if (groups instanceof Array) {
-			return groups.map((item) => <g>{this.getShapes(item)}</g>);
+			return groups.map((item) => <g>{getShapes(item)}</g>);
 		}
 
-		return <g key="groupsSVG">{this.getShapes(groups)}</g>;
+		return <g key="groupsSVG">{getShapes(groups)}</g>;
 	};
 
-	getShapes = (data) => {
+	const getShapes = (data) => {
 		const shapes = [];
 
 		if (data) {
 			if (data.g) {
 				// eslint-disable-next-line fp/no-mutating-methods
-				shapes.push(this.getGroups(data.g));
+				shapes.push(getGroups(data.g));
 			}
 
 			if (data.ellipse) {
 				// eslint-disable-next-line fp/no-mutating-methods
-				shapes.push(this.getEllipses(data.ellipse));
+				shapes.push(getEllipses(data.ellipse));
 			}
 
 			if (data.circle) {
 				// eslint-disable-next-line fp/no-mutating-methods
-				shapes.push(this.getCircles(data.circle));
+				shapes.push(getCircles(data.circle));
 			}
 
 			if (data.path) {
 				// eslint-disable-next-line fp/no-mutating-methods
-				shapes.push(this.getPaths(data.path));
+				shapes.push(getPaths(data.path));
 			}
 		}
 		return shapes;
 	};
 
-	getSVG = ({ viewBox, ...rest }, props) => (
+	const getSVG = ({ viewBox, ...rest }, props) => (
 		<svg
 			aria-hidden={props['aria-hidden']}
 			className={props.className}
@@ -70,15 +69,13 @@ class Svg extends React.Component {
 			name={props.name}
 			style={props.style}
 		>
-			{this.getShapes(rest)}
+			{getShapes(rest)}
 		</svg>
 	);
 
-	render() {
-		const { data, ...props } = this.props;
+	// const { data, ...props } = props;
 
-		return data ? this.getSVG(data, props) : null;
-	}
-}
+	return props.data ? getSVG(props.data, props) : null;
+};
 
 export default Svg;

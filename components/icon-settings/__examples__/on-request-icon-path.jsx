@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import action from '@salesforce-ux/design-system/assets/icons/action-sprite/svg/symbols.svg';
 import custom from '@salesforce-ux/design-system/assets/icons/custom-sprite/svg/symbols.svg';
@@ -17,72 +17,67 @@ const sprites = {
 	doctype,
 };
 
-class Example extends React.Component {
-	static displayName = 'IconSettingsExample';
+const displayName = 'IconSettingsExample';
 
-	componentDidMount() {
+const Example = (props) => {
+	const spriteInlineContainer = useRef();
+	useEffect(() => {
 		Promise.all(
 			Object.keys(sprites).map((category) =>
 				fetch(sprites[category]).then((resp) => resp.text())
 			)
 		).then((texts) => {
-			this.spriteInlineContainer.innerHTML = texts.join('');
+			spriteInlineContainer.current.innerHTML = texts.join('');
 		});
-	}
+	}, []);
 
-	render() {
-		return (
-			<IconSettings onRequestIconPath={({ category, name }) => `#${name}`}>
-				<div
-					ref={(el) => {
-						this.spriteInlineContainer = el;
-					}}
-				/>
-				<div className="slds-grid slds-grid_pull-padded slds-grid_vertical-align-center">
-					<div className="slds-col_padded">
-						<Icon
-							assistiveText={{ label: 'Account' }}
-							category="standard"
-							name="account"
-							size="small"
-						/>
-					</div>
-					<div className="slds-col_padded">
-						<Icon
-							assistiveText={{ label: 'Announcement' }}
-							category="utility"
-							name="announcement"
-							size="small"
-						/>
-					</div>
-					<div className="slds-col_padded">
-						<Icon
-							assistiveText={{ label: 'Description' }}
-							category="action"
-							name="description"
-							size="small"
-						/>
-					</div>
-					<div className="slds-col_padded">
-						<Icon
-							assistiveText={{ label: 'XML' }}
-							category="doctype"
-							name="xml"
-							size="small"
-						/>
-					</div>
-					<div className="slds-col_padded">
-						<Icon
-							assistiveText={{ label: 'custom5' }}
-							category="custom"
-							name="custom5"
-							size="small"
-						/>
-					</div>
+	return (
+		<IconSettings onRequestIconPath={({ category, name }) => `#${name}`}>
+			<div ref={spriteInlineContainer} />
+			<div className="slds-grid slds-grid_pull-padded slds-grid_vertical-align-center">
+				<div className="slds-col_padded">
+					<Icon
+						assistiveText={{ label: 'Account' }}
+						category="standard"
+						name="account"
+						size="small"
+					/>
 				</div>
-			</IconSettings>
-		);
-	}
-}
+				<div className="slds-col_padded">
+					<Icon
+						assistiveText={{ label: 'Announcement' }}
+						category="utility"
+						name="announcement"
+						size="small"
+					/>
+				</div>
+				<div className="slds-col_padded">
+					<Icon
+						assistiveText={{ label: 'Description' }}
+						category="action"
+						name="description"
+						size="small"
+					/>
+				</div>
+				<div className="slds-col_padded">
+					<Icon
+						assistiveText={{ label: 'XML' }}
+						category="doctype"
+						name="xml"
+						size="small"
+					/>
+				</div>
+				<div className="slds-col_padded">
+					<Icon
+						assistiveText={{ label: 'custom5' }}
+						category="custom"
+						name="custom5"
+						size="small"
+					/>
+				</div>
+			</div>
+		</IconSettings>
+	);
+};
 
 export default Example; // export is replaced with `ReactDOM.render(<Example />, mountNode);` at runtime

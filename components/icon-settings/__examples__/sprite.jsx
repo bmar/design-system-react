@@ -9,10 +9,10 @@ import doctypeSprite from '@salesforce-ux/design-system/assets/icons/doctype-spr
 import Icon from '~/components/icon'; // `~` is replaced with design-system-react at runtime
 import IconSettings from '~/components/icon-settings';
 
-class Example extends React.Component {
-	static displayName = 'IconSettingsExample';
+const displayName = 'IconSettingsExample';
 
-	render() {
+const Example = (props) => {
+
 		return (
 			<IconSettings
 				standardSprite={standardSprite}
@@ -65,7 +65,8 @@ class Example extends React.Component {
 				</div>
 			</IconSettings>
 		);
-	}
 }
+
+Example.displayName = displayName;
 
 export default Example; // export is replaced with `ReactDOM.render(<Example />, mountNode);` at runtime

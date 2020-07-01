@@ -5,9 +5,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { ICON_SETTINGS } from '../../utilities/constants';
+import IconContext from '../icon-settings/icon-context';
 
 /**
- * The Icon Settings component allows for the path to the icons to be specified in all child components and is recommended to be used at the root of the application. It's render function is `return this.props.children`, so it can only have one child node.
+ * The Icon Settings component allows for the path to the icons to be specified in all child components and is recommended to be used at the root of the application. It's render function is `return props.children`, so it can only have one child node.
  *
  * **Individual sprites**
  * If you are using webpack it is advised to use the sprite properties
@@ -22,35 +23,35 @@ import { ICON_SETTINGS } from '../../utilities/constants';
  * Otherwise use the iconPath to specify the root path to where the icon files will be located in you application
  * such as `/assets/icons`.
  */
-class IconSettings extends React.Component {
-	getChildContext() {
-		return {
-			iconPath: this.props.iconPath,
-			onRequestIconPath: this.props.onRequestIconPath,
-			actionSprite: this.props.actionSprite,
-			customSprite: this.props.customSprite,
-			doctypeSprite: this.props.doctypeSprite,
-			standardSprite: this.props.standardSprite,
-			utilitySprite: this.props.utilitySprite,
-		};
-	}
-
-	render() {
-		return this.props.children;
-	}
-}
+const IconSettings = (props) => {
+	return (
+		<IconContext.Provider
+			value={{
+				iconPath: props.iconPath || '',
+				onRequestIconPath: props.onRequestIconPath || '',
+				actionSprite: props.actionSprite || '',
+				customSprite: props.customSprite || '',
+				doctypeSprite: props.doctypeSprite || '',
+				standardSprite: props.standardSprite || '',
+				utilitySprite: props.utilitySprite || '',
+			}}
+		>
+			{props.children}
+		</IconContext.Provider>
+	);
+};
 
 IconSettings.displayName = ICON_SETTINGS;
 
-IconSettings.childContextTypes = {
-	iconPath: PropTypes.string,
-	onRequestIconPath: PropTypes.func,
-	actionSprite: PropTypes.string,
-	customSprite: PropTypes.string,
-	doctypeSprite: PropTypes.string,
-	standardSprite: PropTypes.string,
-	utilitySprite: PropTypes.string,
-};
+// IconSettings.childContextTypes = {
+// 	iconPath: PropTypes.string,
+// 	onRequestIconPath: PropTypes.func,
+// 	actionSprite: PropTypes.string,
+// 	customSprite: PropTypes.string,
+// 	doctypeSprite: PropTypes.string,
+// 	standardSprite: PropTypes.string,
+// 	utilitySprite: PropTypes.string,
+// };
 
 IconSettings.propTypes = {
 	/**

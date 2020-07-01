@@ -1,7 +1,7 @@
 /* Copyright (c) 2015-present, salesforce.com, inc. All rights reserved */
 /* Licensed under BSD 3-Clause - see LICENSE.txt or git.io/sfdc-license */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
 // This component's `checkProps` which issues warnings to developers about properties
@@ -18,24 +18,22 @@ import SLDS_ICONS_STANDARD from '../../../icons/standard';
 
 import { DIRECTIONS } from '../UNSAFE_direction';
 import LanguageDirection from '../UNSAFE_direction/private/language-direction';
+import IconContext from '../../icon-settings/icon-context';
 
 /*
  * If inline icons are present and icon bundle imports are not just an empty object, then inline icons will be used instead of external icons that require HTTP access.
  */
-const UtilityIcon = (
-	{
-		name = '',
-		assistiveText, // eslint-disable-line no-unused-vars
-		category,
-		icon,
-		path,
-		direction,
-		...rest
-	},
-	context
-) => {
+const UtilityIcon = ({
+	name = '',
+	assistiveText, // eslint-disable-line no-unused-vars
+	category,
+	icon,
+	path,
+	direction,
+	...rest
+}) => {
+	const context = useContext(IconContext);
 	checkProps('UtilityIcon', { name, category, path, context });
-
 	const inlineIcons = {
 		action: SLDS_ICONS_ACTION,
 		custom: SLDS_ICONS_CUSTOM,
