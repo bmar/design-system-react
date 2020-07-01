@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import IconSettings from '~/components/icon-settings';
 import LocationMap from '~/components/location-map';
@@ -55,60 +55,55 @@ const locations = [
 	},
 ];
 
-class Example extends React.Component {
-	static displayName = 'LocationMapExampleMultipleLocations';
+const displayName = 'LocationMapExampleMultipleLocations';
 
-	constructor(props) {
-		super(props);
-		this.state = {
-			selection: this.props.selection || undefined,
-		};
-	}
+const Example = (props) => {
+	const [state, setState] = useState({
+		selection: props.selection || undefined,
+	});
 
-	render() {
-		const locationMap = (
-			<LocationMap
-				defaultLocation={locations[0]}
-				id="location-map-multiple-locations-example"
-				googleAPIKey="AIzaSyDliLquGXGts9S8YtkWVolSQEJdBL1ZuWc"
-				labels={{ title: 'Salesforce Locations In United States' }}
-				locations={locations}
-				onClickLocation={(event, data) => {
-					log({
-						action: this.props.action,
-						event,
-						eventName: 'Location is selected',
-						data,
-					});
-					this.setState({ selection: data });
-				}}
-				selection={this.state.selection}
-			/>
-		);
+	const locationMap = (
+		<LocationMap
+			defaultLocation={locations[0]}
+			id="location-map-multiple-locations-example"
+			googleAPIKey="AIzaSyDliLquGXGts9S8YtkWVolSQEJdBL1ZuWc"
+			labels={{ title: 'Salesforce Locations In United States' }}
+			locations={locations}
+			onClickLocation={(event, data) => {
+				log({
+					action: props.action,
+					event,
+					eventName: 'Location is selected',
+					data,
+				});
+				setState({ selection: data });
+			}}
+			selection={state.selection}
+		/>
+	);
 
-		return (
-			<IconSettings iconPath="/assets/icons">
-				{this.props.isModal ? (
-					<Modal
-						isOpen
-						size="medium"
-						heading="Salesforce Locations In United States (9)"
-						footer={
-							<Button
-								title="Go to Google Maps"
-								label="Go to Google Maps"
-								variant="brand"
-							/>
-						}
-					>
-						{locationMap}
-					</Modal>
-				) : (
-					<React.Fragment>{locationMap}</React.Fragment>
-				)}
-			</IconSettings>
-		);
-	}
-}
+	return (
+		<IconSettings iconPath="/assets/icons">
+			{props.isModal ? (
+				<Modal
+					isOpen
+					size="medium"
+					heading="Salesforce Locations In United States (9)"
+					footer={
+						<Button
+							title="Go to Google Maps"
+							label="Go to Google Maps"
+							variant="brand"
+						/>
+					}
+				>
+					{locationMap}
+				</Modal>
+			) : (
+				<React.Fragment>{locationMap}</React.Fragment>
+			)}
+		</IconSettings>
+	);
+};
 
 export default Example;

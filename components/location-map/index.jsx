@@ -3,7 +3,7 @@
 
 // Implements the [Map design pattern](https://lightningdesignsystem.com/components/map/) in React.
 // Based on SLDS v2.4.0
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 // ### shortid
@@ -99,103 +99,96 @@ const defaultProps = {
 /**
  * A location map component is used to find and show locations
  */
-class LocationMap extends React.Component {
-	constructor(props) {
-		super(props);
-		this.generatedId = shortid.generate();
-	}
+const LocationMap = (props) => {
+	const generatedId = shortid.generate();
+	const map = useRef();
 
 	/**
 	 * Get the LocationMap's HTML id. Generate a new one if no ID present.
 	 */
-	getId() {
-		return this.props.id || this.generatedId;
-	}
+	const getId = () => {
+		return props.id || generatedId;
+	};
 
 	/**
 	 * Handles clicking of a location
 	 */
-	handleClick = (event, i) => {
-		if (typeof this.props.onClickLocation === 'function')
-			this.props.onClickLocation(event, this.props.locations[i]);
-		if (this.map) {
-			this.map.focus();
+	const handleClick = (event, i) => {
+		if (typeof props.onClickLocation === 'function')
+			props.onClickLocation(event, props.locations[i]);
+		if (map) {
+			map.current.focus();
 		}
 	};
 
-	render() {
-		const labels = { ...defaultProps.labels, ...this.props.labels };
+	const labels = { ...defaultProps.labels, ...props.labels };
 
-		return (
-			<div
-				id={this.getId()}
-				className={classNames(
-					`slds-grid`,
-					{ 'slds-has-coordinates': this.props.locations },
-					this.props.classNameContainer
-				)}
-			>
-				<div className="slds-map_container" style={{ padding: '4px' }}>
-					<div
-						className={classNames(`slds-map`, this.props.className)}
-						ref={(map) => {
-							this.map = map;
-						}}
-						tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex
+	return (
+		<div
+			id={getId()}
+			className={classNames(
+				`slds-grid`,
+				{ 'slds-has-coordinates': props.locations },
+				props.classNameContainer
+			)}
+		>
+			<div className="slds-map_container" style={{ padding: '4px' }}>
+				<div
+					className={classNames(`slds-map`, props.className)}
+					ref={map}
+					tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex
+					title={labels.title}
+				>
+					<iframe
+						id={`${getId()}-google-map`}
+						src={`https://www.google.com/maps/embed/v1/place?key=${
+							props.googleAPIKey
+						}&q=${encodeURIComponent(
+							props.selection
+								? props.selection.address
+								: props.defaultLocation.address
+						)}`}
 						title={labels.title}
-					>
-						<iframe
-							id={`${this.getId()}-google-map`}
-							src={`https://www.google.com/maps/embed/v1/place?key=${
-								this.props.googleAPIKey
-							}&q=${encodeURIComponent(
-								this.props.selection
-									? this.props.selection.address
-									: this.props.defaultLocation.address
-							)}`}
-							title={labels.title}
-						/>
-					</div>
+					/>
 				</div>
-				{this.props.locations.length > 1 ? (
-					<div className="slds-coordinates">
-						<div className="slds-coordinates__header">
-							<h2 className="slds-coordinates__title">
-								{`${labels.title} (${this.props.locations.length})`}
-							</h2>
-						</div>
-						<ul className="slds-coordinates__list">
-							{this.props.locations.map((location, i) => (
-								<li key={location.id} className="slds-coordinates__item">
-									<span className="slds-assistive-text" aria-live="polite">
-										{`${location.name} is currently selected`}
-									</span>
-									<button
-										type="button"
-										onClick={(event) => this.handleClick(event, i)}
-										className="slds-coordinates__item-action slds-button_reset slds-media"
-										aria-pressed={
-											this.props.selection &&
-											this.props.selection.id === location.id
-										}
-									>
-										<span className="slds-media__figure">
-											<Icon category="standard" name="account" />
-										</span>
-										<span className="slds-media__body">
-											<span className="slds-text-link">{location.name}</span>
-											<span>{location.address}</span>
-										</span>
-									</button>
-								</li>
-							))}
-						</ul>
-					</div>
-				) : null}
 			</div>
-		);
-	}
-}
+			{props.locations.length > 1 ? (
+				<div className="slds-coordinates">
+					<div className="slds-coordinates__header">
+						<h2 className="slds-coordinates__title">
+							{`${labels.title} (${props.locations.length})`}
+						</h2>
+					</div>
+					<ul className="slds-coordinates__list">
+						{props.locations.map((location, i) => (
+							<li key={location.id} className="slds-coordinates__item">
+								<span className="slds-assistive-text" aria-live="polite">
+									{`${location.name} is currently selected`}
+								</span>
+								<button
+									type="button"
+									onClick={(event) => handleClick(event, i)}
+									className="slds-coordinates__item-action slds-button_reset slds-media"
+									aria-pressed={
+										props.selection && props.selection.id === location.id
+									}
+								>
+									<span className="slds-media__figure">
+										<Icon category="standard" name="account" />
+									</span>
+									<span className="slds-media__body">
+										<span className="slds-text-link">{location.name}</span>
+										<span>{location.address}</span>
+									</span>
+								</button>
+							</li>
+						))}
+					</ul>
+				</div>
+			) : null}
+		</div>
+	);
+};
 
 LocationMap.displayName = displayName;
 LocationMap.propTypes = propTypes;
