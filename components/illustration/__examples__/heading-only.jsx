@@ -2,13 +2,9 @@ import React from 'react';
 
 import Illustration from '~/components/illustration'; // `~` is replaced with design-system-react at runtime
 
-class Example extends React.Component {
-	render() {
-		return (
-			<Illustration heading="Lorem ipsum dolor" silenceDeprecationWarning />
-		);
-	}
-}
+const Example = (props) => {
+	return <Illustration heading="Lorem ipsum dolor" silenceDeprecationWarning />;
+};
 
 Example.displayName = 'IllustrationExample';
 
