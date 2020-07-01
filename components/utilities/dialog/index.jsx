@@ -500,7 +500,7 @@ class Dialog extends React.Component {
 
 				// TODO: Add test when switched to `ReactDOM.createPortal`
 				const truthyIconSettingsContext = Object.keys(
-					IconSettings.childContextTypes
+					IconSettings.legacyChildContextTypes
 				)
 					.filter((key) => Boolean(this.context[key]))
 					.reduce(

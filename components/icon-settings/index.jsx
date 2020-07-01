@@ -43,7 +43,7 @@ const IconSettings = (props) => {
 
 IconSettings.displayName = ICON_SETTINGS;
 
-IconSettings.childContextTypes = {
+IconSettings.legacyChildContextTypes = {
 	iconPath: PropTypes.string,
 	onRequestIconPath: PropTypes.func,
 	actionSprite: PropTypes.string,
